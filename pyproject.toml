@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "simple-store"
+version = "0.1.0"
+description = "Store api demo"
+authors = ["Oleksii Zaichenko <o5zaichenko@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.111.1"
+pydantic = "^2.8.2"
+pydantic-settings = "^2.3.4"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.31"}
+asyncpg = "^0.29.0"
+loguru = "^0.7.2"
+python-dotenv = "^1.0.1"
+alembic = "^1.13.2"
+pytz = "^2024.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
