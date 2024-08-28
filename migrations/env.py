@@ -1,22 +1,30 @@
+import asyncio
 import os
 import re
-import asyncio
+import sys
 
-from logging.config         import fileConfig
+from logging.config                  import fileConfig
 
-from dotenv                 import load_dotenv
-from sqlalchemy             import pool
-from sqlalchemy.engine      import Connection
-from sqlalchemy.ext.asyncio import async_engine_from_config
+from alembic                         import context
+from dotenv                          import load_dotenv
+from sqlalchemy                      import pool
+from sqlalchemy.engine               import Connection
+from sqlalchemy.ext.asyncio          import async_engine_from_config
 
-from alembic import context
-
-from src.database import metadata
-
+from src.infrastructure.database     import metadata
+from src.infrastructure.repositories import (
+	CategoryTable,
+	OrderTable,
+	ProductTable,
+	SubcategoryTable,
+)
 
 load_dotenv()
 
 DATABASE_URL = os.getenv('DATABASE_URL')
+if not DATABASE_URL:
+	print('DATABASE_URL is specified in environment')
+	sys.exit(1)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
