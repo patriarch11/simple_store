@@ -31,4 +31,9 @@ class Environment(str, Enum):
 	@property
 	def is_local(self) -> bool:
 		return self == self.LOCAL
-	
+
+
+class OrderStatus(Enum):
+	RESERVED  = 1
+	COMPLETED = 2
+	CANCELLED = 3
