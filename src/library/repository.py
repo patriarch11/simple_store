@@ -1,48 +1,65 @@
-from typing     import Any, Optional, Union
+from typing     import Any, Optional, Union, Type
 
 from sqlalchemy import (
 	Insert,
 	Select,
 	Update,
-	Delete
+	Delete,
+
+	insert,
+	select,
+	update,
+	delete
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from .base_entity           import BaseEntity
+from .table                 import Table
+
 
 class Repository:
-	def __init__(self, session: AsyncSession):
+	entity : Type[BaseEntity] = BaseEntity
+	table  : Type[Table]      = Table
+
+	def __init__(self, session : AsyncSession):
 		self.session = session
 
-	async def fetch_one(self,
-		query: Union[Select, Insert, Update]
-	) -> Optional[dict[str, Any]]:
-		result = await self.session.execute(query)
-		row    = result.fetchone()
-		if row:
-			return dict(row)
-		return None
+	async def insert_or_update(self, query: Union[Insert, Update]) -> dict[str, Any]:
+		async with self.session() as tx:
+			async with tx.begin(): # begin transaction and commit to session after executing
+				result = await tx.execute(query)
+				row = result.mappings().first()
+				return dict(row)
 
-	async def fetch_many(self,
-		query: Union[Select, Insert, Update]
-	) -> Optional[list[dict[str, Any]]]:
-		result = await self.session.execute(query)
-		rows   = result.fetchall()
-		if rows:
+	async def fetch_one(self, query: Select) -> Optional[dict[str, Any]]:
+		async with self.session as tx:
+			result = await tx.execute(query)
+			row = result.mappings().first()
+			return dict(row) if row else None
+
+	async def fetch_many(self, query: Select) -> list[dict[str, Any]]:
+		async with self.session as tx:
+			result = await tx.execute(query)
+			rows   = result.mappings().all()
 			return [dict(row) for row in rows]
-		return None
 
-	async def fetch_exists(self, query: Select) -> bool:
-		result = await self.session.execute(query)
-		row    = result.fetchone()
-		return row is not None
+	async def execute(self, query: Union[Insert, Update, Delete]) -> None:
+		async with self.session() as tx:
+			async with tx.begin():
+				await tx.execute(query)
 
-	async def fetch_count(self, query: Select) -> int:
-		result = await self.session.execute(query)
-		count  = result.scalar_one_or_none()
-		return count if count is not None else 0
-
-	async def execute(self,
-		query: Union[Insert, Update, Delete]
-	) -> None:
-		await self.session.execute(query)
-		await self.session.commit()
+	async def create(self, entity: BaseEntity) -> BaseEntity:
+		data = await self.insert_or_update(
+			insert(self.table)
+				.values(**entity.to_db())
+				.returning(self.table.__table__.columns)
+		)
+		return self.entity.model_validate(data)
+	
+	async def exists(self, **filters: Any) -> bool:
+		query = select(self.table).filter_by(**filters)
+		async with self.session() as tx:
+			result = await tx.execute(query)
+			row = result.first()
+			return bool(row)
+		

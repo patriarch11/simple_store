@@ -1,2 +1,3 @@
-from .base_model import BaseModel
-from .table import Table
+from .base_entity import BaseEntity
+from .repository  import Repository
+from .table       import Table

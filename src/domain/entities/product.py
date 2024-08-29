@@ -1,7 +1,7 @@
-from src.library import BaseModel
+from src.library import BaseEntity
 
 
-class Product(BaseModel):
+class Product(BaseEntity):
 	category_id    : int
 	subcategory_id : int
 	name           : str
@@ -9,4 +9,3 @@ class Product(BaseModel):
 	price          : int
 	total_count    : int
 	free_count     : int
-

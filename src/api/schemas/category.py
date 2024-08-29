@@ -1,10 +1,13 @@
 from datetime import datetime
 from typing   import Optional
 
-from pydantic import BaseModel as PydanticBaseModel
+from pydantic import BaseModel
+
+class CategoryCreate(BaseModel):
+	name: str
 
 
-class BaseModel(PydanticBaseModel):
+class CategoryResponse(CategoryCreate):
 	id         : int
 	created_at : datetime
 	updated_at : Optional[datetime]
