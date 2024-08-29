@@ -1,6 +1,6 @@
-from src.domain.entities import Category
+from src.domain.entities import Category, CategoryList
 from src.library         import RepositoryABC
 
 
-class CategoryRepository(RepositoryABC[Category]):
+class CategoryRepository(RepositoryABC[Category, CategoryList]):
 	...

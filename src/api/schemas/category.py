@@ -1,4 +1,4 @@
-from pydantic    import BaseModel
+from pydantic    import BaseModel, RootModel
 
 from src.library import ResponseSchema
 
@@ -8,4 +8,8 @@ class CategoryCreate(BaseModel):
 
 
 class CategoryResponse(ResponseSchema, CategoryCreate):
+	...
+
+
+class CategoryListResponse(RootModel[list[CategoryResponse]]):
 	...

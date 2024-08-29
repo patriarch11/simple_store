@@ -1,12 +1,16 @@
 from abc     import ABC, abstractmethod
 from typing  import Any, Generic, TypeVar
 
-from .entity import EntityT
+from .entity import EntityT, EntityListT
 
 
-class RepositoryABC(ABC, Generic[EntityT]):
+class RepositoryABC(ABC, Generic[EntityT, EntityListT]):
 	@abstractmethod
 	async def create(self, entity: EntityT) -> EntityT:
+		...
+
+	@abstractmethod
+	async def get_all(self) -> EntityListT:
 		...
 
 	@abstractmethod

@@ -6,7 +6,7 @@ from sqlalchemy import (
 )
 
 from src.constants                import OrderStatus
-from src.domain.entities          import Order
+from src.domain.entities          import Order, OrderList
 from src.domain.repositories      import OrderRepository
 from src.infrastructure.database  import Base
 from src.library                  import Repository, Table
@@ -21,6 +21,10 @@ class OrderTable(Base, Table):
 	status     = Column(Enum(OrderStatus), nullable=False)
 
 
-class SaOrderRepository(Repository[Order, OrderTable], OrderRepository):
-	entity = Order
-	table  = OrderTable
+class SaOrderRepository(
+	Repository[Order, OrderList, OrderTable],
+	OrderRepository
+):
+	entity      = Order
+	entity_list = OrderList
+	table       = OrderTable

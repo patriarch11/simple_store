@@ -4,7 +4,7 @@ from sqlalchemy import (
 	String,
 )
 
-from src.domain.entities         import Category
+from src.domain.entities         import Category, CategoryList
 from src.domain.repositories     import CategoryRepository
 from src.infrastructure.database import Base
 from src.library                 import Repository, Table
@@ -17,6 +17,10 @@ class CategoryTable(Table, Base):
 	name = Column(String(255), nullable=False, unique=True)
 
 
-class SaCategoryRepository(Repository[Category, CategoryTable], CategoryRepository):
-	entity = Category
-	table  = CategoryTable
+class SaCategoryRepository(
+	Repository[Category, CategoryList, CategoryTable],
+	CategoryRepository
+):
+	entity      = Category
+	entity_list = CategoryList
+	table       = CategoryTable

@@ -1,4 +1,4 @@
-from .entity         import Entity
+from .entity         import Entity, EntityList
 from .repository_abc import RepositoryABC
 from .repository     import Repository
 from .schema         import ResponseSchema

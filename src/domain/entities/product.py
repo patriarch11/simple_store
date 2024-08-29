@@ -1,4 +1,4 @@
-from src.library import Entity
+from src.library import Entity, EntityList
 
 
 class Product(Entity):
@@ -9,3 +9,7 @@ class Product(Entity):
 	price          : int
 	total_count    : int
 	free_count     : int
+
+
+class ProductList(EntityList[Product]):
+	...

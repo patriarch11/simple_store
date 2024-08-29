@@ -5,7 +5,7 @@ from sqlalchemy import (
 	ForeignKey
 )
 
-from src.domain.entities          import Subcategory
+from src.domain.entities          import Subcategory, SubcategoryList
 from src.domain.repositories      import SubcategoryRepository
 from src.infrastructure.database  import Base
 from src.library                  import Repository, Table
@@ -20,8 +20,9 @@ class SubcategoryTable(Base, Table):
 
 
 class SaSubcategoryRepository(
-	Repository[Subcategory, SubcategoryTable],
+	Repository[Subcategory, SubcategoryList, SubcategoryTable],
 	SubcategoryRepository
 ):
-	entity = Subcategory
-	table  = SubcategoryTable
+	entity      = Subcategory
+	entity_list = SubcategoryList
+	table       = SubcategoryTable

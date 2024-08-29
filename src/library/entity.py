@@ -1,9 +1,9 @@
-from typing   import TypeVar
+from typing   import TypeVar, Generic
 
 from datetime import datetime
 from typing   import Any, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, RootModel
 
 
 class Entity(BaseModel):
@@ -18,5 +18,10 @@ class Entity(BaseModel):
 			del data[field]
 		return data
 
-EntityT     = TypeVar('EntityT', bound=Entity)
-EntityListT = TypeVar('EntityListT')
+EntityT  = TypeVar('EntityT', bound=Entity)
+
+
+class EntityList(RootModel[list[EntityT]], Generic[EntityT]):
+	...
+
+EntityListT = TypeVar('EntityListT', bound=EntityList)

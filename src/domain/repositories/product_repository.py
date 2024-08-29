@@ -1,6 +1,6 @@
-from src.domain.entities import Product
+from src.domain.entities import Product, ProductList
 from src.library         import RepositoryABC
 
 
-class ProductRepository(RepositoryABC[Product]):
+class ProductRepository(RepositoryABC[Product, ProductList]):
 	...

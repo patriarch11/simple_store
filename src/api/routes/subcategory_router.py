@@ -1,8 +1,13 @@
 from fastapi                     import APIRouter, status, HTTPException
 
-from src.api.schemas.subcategory import SubcategoryCreate, SubcategoryResponse
+from src.api.schemas.subcategory import (
+	SubcategoryCreate,
+	SubcategoryResponse,
+	SubcategoryListResponse
+)
 from src.domain.entities         import Subcategory
 from src.domain.services         import CategoryService, SubcategoryService
+
 
 class SubcategoryRouter(APIRouter):
 	def __init__(self,
@@ -30,6 +35,17 @@ class SubcategoryRouter(APIRouter):
 				}
 			}
 		)
+		self.add_api_route(
+			'/list',
+			self.get_all,
+			methods   = ['GET'],
+			responses = {
+				status.HTTP_200_OK : {
+					'model'       : SubcategoryListResponse,
+					'description' : 'List of subcategories'
+				}
+			}
+		)
 
 	async def create(self, subcategory: SubcategoryCreate) -> SubcategoryResponse:
 		if not await self.category_service.exists_id(subcategory.category_id):
@@ -47,3 +63,9 @@ class SubcategoryRouter(APIRouter):
 		)
 
 		return SubcategoryResponse(**new_subcategory.model_dump())
+
+	async def get_all(self) -> SubcategoryListResponse:
+		subcategories = await self.service.get_all()
+		return SubcategoryListResponse.model_validate(
+			subcategories.model_dump()
+		)

@@ -1,6 +1,10 @@
 from fastapi             import APIRouter, status, HTTPException
 
-from src.api.schemas     import CategoryCreate, CategoryResponse
+from src.api.schemas     import (
+	CategoryCreate,
+	CategoryResponse,
+	CategoryListResponse
+)
 from src.domain.entities import Category
 from src.domain.services import CategoryService
 
@@ -23,6 +27,17 @@ class CategoryRouter(APIRouter):
 				}
 			}
 		)
+		self.add_api_route(
+			'/list',
+			self.get_all,
+			methods   = ['GET'],
+			responses = {
+				status.HTTP_200_OK : {
+					'model'       : CategoryListResponse,
+					'description' : 'List of 	categories'
+				}
+			}
+		)
 
 	async def create(self, category : CategoryCreate) -> CategoryResponse:
 		if await self.service.exists_name(category.name):
@@ -34,3 +49,9 @@ class CategoryRouter(APIRouter):
 			Category(**category.model_dump())
 		)
 		return CategoryResponse(**new_category.model_dump())
+
+	async def get_all(self) -> CategoryListResponse:
+		categories = await self.service.get_all()
+		return CategoryListResponse.model_validate(
+			categories.model_dump()
+		)
