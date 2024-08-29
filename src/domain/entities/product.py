@@ -1,7 +1,7 @@
-from src.library import BaseEntity
+from src.library import Entity
 
 
-class Product(BaseEntity):
+class Product(Entity):
 	category_id    : int
 	subcategory_id : int
 	name           : str

@@ -5,8 +5,10 @@ from sqlalchemy import (
 	ForeignKey
 )
 
-from src.infrastructure.database import Base
-from src.library                 import Table
+from src.domain.entities          import Subcategory
+from src.domain.repositories      import SubcategoryRepository
+from src.infrastructure.database  import Base
+from src.library                  import Repository, Table
 
 
 class SubcategoryTable(Base, Table):
@@ -15,3 +17,11 @@ class SubcategoryTable(Base, Table):
 	id          = Column(Integer, primary_key=True)
 	category_id = Column(Integer, ForeignKey('categories.id'), nullable=False, index=True)
 	name        = Column(String(255), nullable=False, unique=True)
+
+
+class SaSubcategoryRepository(
+	Repository[Subcategory, SubcategoryTable],
+	SubcategoryRepository
+):
+	entity = Subcategory
+	table  = SubcategoryTable

@@ -5,8 +5,10 @@ from sqlalchemy import (
     ForeignKey,
 )
 
-from src.infrastructure.database import Base
-from src.library                 import Table
+from src.domain.entities          import Product
+from src.domain.repositories      import ProductRepository
+from src.infrastructure.database  import Base
+from src.library                  import Repository, Table
 
 
 class ProductTable(Base, Table):
@@ -20,4 +22,9 @@ class ProductTable(Base, Table):
 	price          = Column(Integer, nullable=False)
 	total_count    = Column(Integer, nullable=False)
 	free_count     = Column(Integer, nullable=False)
+
+
+class SaProductRepository(Repository[Product, ProductTable], ProductRepository):
+	entity = Product
+	table  = ProductTable
 	

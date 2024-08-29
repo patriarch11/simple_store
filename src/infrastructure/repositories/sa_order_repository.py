@@ -5,9 +5,11 @@ from sqlalchemy import (
 	Enum
 )
 
-from src.constants               import OrderStatus
-from src.infrastructure.database import Base
-from src.library                 import Table
+from src.constants                import OrderStatus
+from src.domain.entities          import Order
+from src.domain.repositories      import OrderRepository
+from src.infrastructure.database  import Base
+from src.library                  import Repository, Table
 
 
 class OrderTable(Base, Table):
@@ -17,3 +19,8 @@ class OrderTable(Base, Table):
 	user_id    = Column(Integer, nullable=False)
 	product_id = Column(Integer, ForeignKey('products.id'), nullable=False)
 	status     = Column(Enum(OrderStatus), nullable=False)
+
+
+class SaOrderRepository(Repository[Order, OrderTable], OrderRepository):
+	entity = Order
+	table  = OrderTable

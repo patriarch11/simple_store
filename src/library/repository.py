@@ -1,4 +1,4 @@
-from typing     import Any, Optional, Union, Type
+from typing     import Any, Optional, Union, Type, TypeVar, Generic
 
 from sqlalchemy import (
 	Insert,
@@ -13,13 +13,13 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .base_entity           import BaseEntity
-from .table                 import Table
+from .entity                import EntityT
+from .table                 import TableT
 
 
-class Repository:
-	entity : Type[BaseEntity] = BaseEntity
-	table  : Type[Table]      = Table
+class Repository(Generic[EntityT, TableT]):
+	entity : Type[EntityT]
+	table  : Type[TableT]
 
 	def __init__(self, session : AsyncSession):
 		self.session = session
@@ -48,7 +48,7 @@ class Repository:
 			async with tx.begin():
 				await tx.execute(query)
 
-	async def create(self, entity: BaseEntity) -> BaseEntity:
+	async def create(self, entity: EntityT) -> EntityT:
 		data = await self.insert_or_update(
 			insert(self.table)
 				.values(**entity.to_db())
@@ -62,4 +62,5 @@ class Repository:
 			result = await tx.execute(query)
 			row = result.first()
 			return bool(row)
-		
+
+RepositoryT = TypeVar('RepositoryT', bound=Repository)

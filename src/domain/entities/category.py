@@ -1,5 +1,5 @@
-from src.library import BaseEntity
+from src.library import Entity
 
 
-class Category(BaseEntity):
+class Category(Entity):
 	name : str

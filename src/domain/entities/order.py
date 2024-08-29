@@ -1,8 +1,8 @@
 from src.constants import OrderStatus
-from src.library   import BaseEntity
+from src.library   import Entity
 
 
-class Order(BaseEntity):
+class Order(Entity):
 	user_id    : int
 	product_id : int
 	status     : OrderStatus
