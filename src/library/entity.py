@@ -18,4 +18,5 @@ class Entity(BaseModel):
 			del data[field]
 		return data
 
-EntityT = TypeVar('EntityT', bound=Entity)
+EntityT     = TypeVar('EntityT', bound=Entity)
+EntityListT = TypeVar('EntityListT')

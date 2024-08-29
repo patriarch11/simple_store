@@ -19,7 +19,7 @@ class CategoryRouter(APIRouter):
 					'description' : 'Category created successfully'
 				},
 				status.HTTP_409_CONFLICT: {
-					'description' : 'Category already exists'
+					'description': 'Category already exists'
 				}
 			}
 		)
@@ -30,7 +30,7 @@ class CategoryRouter(APIRouter):
 				status.HTTP_409_CONFLICT,
 				'Category already exists'
 			)
-		created_category = await self.service.create(
+		new_category = await self.service.create(
 			Category(**category.model_dump())
 		)
-		return CategoryResponse(**created_category.model_dump())
+		return CategoryResponse(**new_category.model_dump())

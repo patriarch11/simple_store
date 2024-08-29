@@ -44,4 +44,7 @@ def get_product_router() -> ProductRouter:
 	return ProductRouter(get_product_service())
 
 def get_subcategory_router() -> SubcategoryRouter:
-	return SubcategoryRouter(get_subcategory_service())
+	return SubcategoryRouter(
+		get_subcategory_service(),
+		get_category_service()
+	)

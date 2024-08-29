@@ -13,13 +13,14 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .entity                import EntityT
+from .entity                import EntityT, EntityListT
 from .table                 import TableT
 
 
-class Repository(Generic[EntityT, TableT]):
-	entity : Type[EntityT]
-	table  : Type[TableT]
+class Repository(Generic[EntityT, EntityListT, TableT]):
+	entity     : Type[EntityT]
+	entityList : Type[EntityListT]
+	table      : Type[TableT]
 
 	def __init__(self, session : AsyncSession):
 		self.session = session
@@ -55,7 +56,10 @@ class Repository(Generic[EntityT, TableT]):
 				.returning(self.table.__table__.columns)
 		)
 		return self.entity.model_validate(data)
-	
+
+	async def get_all(self) -> EntityListT:
+		...
+
 	async def exists(self, **filters: Any) -> bool:
 		query = select(self.table).filter_by(**filters)
 		async with self.session() as tx:
