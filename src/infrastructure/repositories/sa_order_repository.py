@@ -1,6 +1,7 @@
 from sqlalchemy import (
     Column,
     Integer,
+    Float,
     ForeignKey,
 	Enum
 )
@@ -15,10 +16,12 @@ from src.library                  import Repository, Table
 class OrderTable(Base, Table):
 	__tablename__ = 'orders'
 
-	id         = Column(Integer, primary_key=True)
-	user_id    = Column(Integer, nullable=False)
-	product_id = Column(Integer, ForeignKey('products.id'), nullable=False)
-	status     = Column(Enum(OrderStatus), nullable=False)
+	id           = Column(Integer, primary_key=True)
+	user_id      = Column(Integer, nullable=False)
+	product_id   = Column(Integer, ForeignKey('products.id'), nullable=False)
+	discount_pct = Column(Float,   nullable=False, default=0.0)
+	price        = Column(Float,   nullable=False, default=0.0)
+	status       = Column(Enum(OrderStatus), nullable=False)
 
 
 class SaOrderRepository(

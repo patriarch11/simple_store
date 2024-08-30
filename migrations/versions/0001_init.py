@@ -2,7 +2,7 @@
 
 Revision ID: 0001
 Revises: 
-Create Date: 2024-08-28 18:45:07.241089
+Create Date: 2024-08-30 23:43:17.381064
 
 """
 from typing import Sequence, Union
@@ -44,8 +44,8 @@ def upgrade() -> None:
     sa.Column('category_id', sa.Integer(), nullable=False),
     sa.Column('subcategory_id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
-    sa.Column('discount_pct', sa.Integer(), nullable=True),
-    sa.Column('price', sa.Integer(), nullable=False),
+    sa.Column('discount_pct', sa.Float(), nullable=False),
+    sa.Column('price', sa.Float(), nullable=False),
     sa.Column('total_count', sa.Integer(), nullable=False),
     sa.Column('free_count', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=True),
@@ -58,6 +58,8 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('product_id', sa.Integer(), nullable=False),
+    sa.Column('discount_pct', sa.Float(), nullable=False),
+    sa.Column('price', sa.Float(), nullable=False),
     sa.Column('status', sa.Enum('RESERVED', 'COMPLETED', 'CANCELLED', name='orderstatus'), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), nullable=True),
     sa.Column('updated_at', sa.TIMESTAMP(timezone=True), nullable=True),

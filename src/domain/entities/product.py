@@ -7,10 +7,10 @@ class Product(Entity):
 	category_id    : int
 	subcategory_id : int
 	name           : str
-	discount_pct   : int = 0
-	price          : int = 0
-	total_count    : int = 0
-	free_count     : int = 0
+	discount_pct   : float = 0.0
+	price          : float = 0.0
+	total_count    : int   = 0
+	free_count     : int   = 0
 
 	@model_validator(mode='after')
 	def validate_free_count(self):

@@ -3,6 +3,7 @@ from typing                      import Optional
 from sqlalchemy                  import (
     Column,
     Integer,
+    Float,
 	String,
     ForeignKey,
 
@@ -21,8 +22,8 @@ class ProductTable(Base, Table):
 	category_id    = Column(Integer, ForeignKey('categories.id'),    nullable=False)
 	subcategory_id = Column(Integer, ForeignKey('subcategories.id'), nullable=False)
 	name           = Column(String(255), nullable=False)
-	discount_pct   = Column(Integer)
-	price          = Column(Integer, nullable=False)
+	discount_pct   = Column(Float,   nullable=False, default=0.0)
+	price          = Column(Float,   nullable=False, default=0.0)
 	total_count    = Column(Integer, nullable=False)
 	free_count     = Column(Integer, nullable=False)
 
