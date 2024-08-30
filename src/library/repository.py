@@ -60,6 +60,15 @@ class Repository(Generic[EntityT, EntityListT, TableT]):
 		)
 		return self.entity.model_validate(data)
 
+	async def get_or_none(self, **filters: Any) -> Optional[EntityT]:
+		data = await self.fetch_one(
+			select(self.table.__table__.columns)
+				.filter_by(**filters)
+				.limit(1)
+		)
+		if data:
+			return self.entity.model_validate(data)
+
 	async def get_all(self) -> EntityListT:
 		return self.entity_list.model_validate(
 			await self.fetch_many(
