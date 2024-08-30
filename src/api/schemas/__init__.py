@@ -3,7 +3,7 @@ from .category    import (
 	CategoryResponse,
 	CategoryListResponse
 )
-from .filter       import CategoryFilter
+from .common       import CategoryPaginationFilter
 from .product      import (
 	ProductCreate,
 	ProductResponse,

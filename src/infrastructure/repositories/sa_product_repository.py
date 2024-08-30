@@ -1,8 +1,11 @@
-from sqlalchemy import (
+from typing                      import Optional
+
+from sqlalchemy                  import (
     Column,
     Integer,
 	String,
     ForeignKey,
+
 )
 
 from src.domain.entities          import Product, ProductList
@@ -31,3 +34,24 @@ class SaProductRepository(
 	entity      = Product
 	entity_list = ProductList
 	table       = ProductTable
+
+	async def get_list(self,
+		category_ids    : list[int],
+		subcategory_ids : list[int],
+		limit           : Optional[int],
+		offset          : Optional[int]
+	) -> ProductList:
+		q = self.select_q
+		if len(category_ids):
+			q = q.where(
+				self.table.category_id.in_(category_ids)
+			)
+		if len(subcategory_ids):
+			q = q.where(
+				self.table.subcategory_id.in_(subcategory_ids)
+			)
+		return self.entity_list.model_validate(
+			await self.fetch_many(
+				self.paginate_q(q, limit, offset)
+			)
+		)

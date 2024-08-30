@@ -52,6 +52,24 @@ class Repository(Generic[EntityT, EntityListT, TableT]):
 			async with tx.begin():
 				await tx.execute(query)
 
+	@property
+	def select_q(self) -> Select:
+		return select(self.table.__table__.columns)
+
+	def filter_q(self, **filters: Any) -> Select:
+		return self.select_q.filter_by(**filters)
+
+	def paginate_q(self,
+		q      : Select,
+		limit  : Optional[int],
+		offset : Optional[int]
+	) -> Select:
+		if offset is not None:
+			q = q.offset(offset)
+		if limit is not None:
+			q = q.limit(limit)
+		return q
+
 	async def create(self, entity: EntityT) -> EntityT:
 		data = await self.insert_or_update(
 			insert(self.table)
@@ -62,25 +80,33 @@ class Repository(Generic[EntityT, EntityListT, TableT]):
 
 	async def get_or_none(self, **filters: Any) -> Optional[EntityT]:
 		data = await self.fetch_one(
-			select(self.table.__table__.columns)
-				.filter_by(**filters)
-				.limit(1)
+			self.filter_q(**filters).limit(1)
 		)
 		if data:
 			return self.entity.model_validate(data)
 
-	async def get_all(self) -> EntityListT:
+	async def get_all(self,
+		limit  : Optional[int] = None,
+		offset : Optional[int] = None
+	) -> EntityListT:
 		return self.entity_list.model_validate(
 			await self.fetch_many(
-				select(self.table.__table__.columns)
+				self.paginate_q(self.select_q, limit, offset)
 			)
 		)
 
-	async def filter(self, **filters: Any) -> EntityListT:
+	async def filter(self,
+		limit  : Optional[int] = None,
+		offset : Optional[int] = None,
+		**filters: Any
+	) -> EntityListT:
 		return self.entity_list.model_validate(
 			await self.fetch_many(
-				select(self.table.__table__.columns)
-					.filter_by(**filters)
+				self.paginate_q(
+					self.filter_q(**filters),
+					limit,
+					offset
+				)
 			)
 		)
 

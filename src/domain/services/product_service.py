@@ -6,13 +6,10 @@ from src.library             import Service
 
 
 class ProductService(Service[Product, ProductList, ProductRepository]):
-	async def get_list_by_category_and_subcategory(self,
-		category_id    : Optional[int],
-		subcategory_id : Optional[int]
+	async def get_list(self,
+		category_ids    : list[int],
+		subcategory_ids : list[int],
+		limit           : Optional[int],
+		offset          : Optional[int]
 	) -> ProductList:
-		filters = {}
-		if category_id:
-			filters['category_id'] = category_id
-		if subcategory_id:
-			filters['subcategory_id'] = subcategory_id
-		return await self.repo.filter(**filters)
+		return await self.repo.get_list(category_ids, subcategory_ids, limit, offset)
