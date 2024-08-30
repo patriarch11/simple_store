@@ -76,6 +76,14 @@ class Repository(Generic[EntityT, EntityListT, TableT]):
 			)
 		)
 
+	async def filter(self, **filters: Any) -> EntityListT:
+		return self.entity_list.model_validate(
+			await self.fetch_many(
+				select(self.table.__table__.columns)
+					.filter_by(**filters)
+			)
+		)
+
 	async def exists(self, **filters: Any) -> bool:
 		query = select(self.table).filter_by(**filters)
 		async with self.session() as tx:

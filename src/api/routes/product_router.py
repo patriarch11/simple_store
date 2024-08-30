@@ -1,4 +1,4 @@
-from fastapi              import APIRouter, HTTPException, status
+from fastapi              import APIRouter, Depends, HTTPException, status
 
 from src.api.schemas      import (
 	CategoryFilter,
@@ -52,8 +52,12 @@ class ProductRouter(APIRouter):
 		new_product = await self.service.create(Product(**product.model_dump()))
 		return ProductResponse.model_validate(new_product.model_dump())
 
-	async def get_list(self, filters: CategoryFilter) -> ProductListResponse:
-		...
+	async def get_list(self, filter: CategoryFilter = Depends(CategoryFilter.as_query)) -> ProductListResponse:
+		product_list = await self.service.get_list_by_category_and_subcategory(
+			filter.category_id,
+			filter.subcategory_id
+		)
+		return ProductListResponse.model_validate(product_list.model_dump())
 
 	async def update_count(self):
 		...

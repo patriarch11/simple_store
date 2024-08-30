@@ -18,6 +18,10 @@ class RepositoryABC(ABC, Generic[EntityT, EntityListT]):
 		...
 
 	@abstractmethod
+	async def filter(self, **filters: Any) -> EntityListT:
+		...
+
+	@abstractmethod
 	async def exists(self, **filters: Any) -> bool:
 		...
 

@@ -25,9 +25,13 @@ class CategoryValidator:
 		self.subcategory_service = get_subcategory_service()
 
 	async def __call__(self, request: Request):
-		body           = await request.json()
-		category_id    = body.get('category_id')
-		subcategory_id = body.get('subcategory_id')
+		if request.method in ['POST', 'PUT', 'PATCH']:
+			body           = await request.json()
+			category_id    = body.get('category_id')
+			subcategory_id = body.get('subcategory_id')
+		else:
+			category_id    = request.query_params.get('category_id')
+			subcategory_id = request.query_params.get('subcategory_id')
 
 		if category_id is not None:
 			category_id = self._validate_type(category_id)
