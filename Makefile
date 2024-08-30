@@ -29,3 +29,7 @@ migrate:
 ## Apply migrations to DB
 migrate-up:
 	alembic upgrade head
+
+## Create database dump
+dump:
+	. ./.env && sudo -u postgres pg_dump --dbname=simple_store > db_dumps/$(name).sql
