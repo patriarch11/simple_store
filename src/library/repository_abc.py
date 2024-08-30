@@ -25,4 +25,12 @@ class RepositoryABC(ABC, Generic[EntityT, EntityListT]):
 	async def exists(self, **filters: Any) -> bool:
 		...
 
+	@abstractmethod
+	async def update(self, id: int, to_update: dict) -> EntityT:
+		...
+
+	@abstractmethod
+	async def delete(self, id: int):
+		...
+
 RepositoryABC_T = TypeVar('RepositoryABC_T', bound=RepositoryABC)

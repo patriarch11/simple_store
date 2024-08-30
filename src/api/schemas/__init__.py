@@ -6,6 +6,9 @@ from .category    import (
 from .common       import CategoryPaginationFilter
 from .product      import (
 	ProductCreate,
+	ProductCountUpdate,
+	ProductPriceUpdate,
+	ProductDiscountUpdate,
 	ProductResponse,
 	ProductListResponse
 )

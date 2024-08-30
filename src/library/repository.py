@@ -117,4 +117,19 @@ class Repository(Generic[EntityT, EntityListT, TableT]):
 			row = result.first()
 			return bool(row)
 
+	async def update(self, id: int, to_update: dict) -> EntityT:
+		data = await self.insert_or_update(
+			update(self.table)
+				.values(**to_update)
+				.where(self.table.id == id)
+				.returning(self.table.__table__.columns)
+		)
+		return self.entity.model_validate(data)
+
+	async def delete(self, id: int):
+		await self.execute(
+			delete(self.table)
+				.where(self.table.id == id)
+		)
+
 RepositoryT = TypeVar('RepositoryT', bound=Repository)
