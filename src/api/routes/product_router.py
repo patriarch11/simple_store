@@ -2,16 +2,18 @@ from fastapi              import APIRouter, Depends, HTTPException, Query, statu
 
 from src.api.schemas      import (
 	CategoryPaginationFilter,
+	OrderResponse,
 	ProductCreate,
 	ProductCountUpdate,
 	ProductPriceUpdate,
 	ProductDiscountUpdate,
+	ProductReserve,
 	ProductResponse,
 	ProductListResponse
 )
-from src.api.dependencies import validate_category, get_product
+from src.api.dependencies import validate_category, get_reserved_order, get_product
 from src.dependencies     import get_product_service, get_product_use_case
-from src.domain.entities  import Product
+from src.domain.entities  import Order, Product
 
 
 class ProductRouter(APIRouter):
@@ -93,7 +95,57 @@ class ProductRouter(APIRouter):
 				status.HTTP_404_NOT_FOUND   : {'description': 'Product not found'},
 			}
 		)
-
+		self.add_api_route(
+			'/reserve',
+			self.reserve,
+			methods   = ['POST'],
+			responses = {
+				status.HTTP_201_CREATED:  {
+					'model'       : OrderResponse,
+					'description' : 'Product reserved, order created'
+				},
+				status.HTTP_400_BAD_REQUEST : {
+					'description': 'Invalid quantity'
+				},
+				status.HTTP_404_NOT_FOUND: {
+					'description': 'Prdocut not found'
+				}
+			}
+		)
+		self.add_api_route(
+			'/cancel_reservation',
+			self.cancel_reservation,
+			methods   = ['PATCH'],
+			responses = {
+				status.HTTP_200_OK:  {
+					'model'       : OrderResponse,
+					'description' : 'Product reservation canceled'
+				},
+				status.HTTP_400_BAD_REQUEST : {
+					'description': 'Order status must be "RESERVED"'
+				},
+				status.HTTP_404_NOT_FOUND: {
+					'description': 'Order not found'
+				}
+			}
+		)
+		self.add_api_route(
+			'/sell',
+			self.sell,
+			methods   = ['PATCH'],
+			responses = {
+				status.HTTP_200_OK:  {
+					'model'       : OrderResponse,
+					'description' : 'Product selled'
+				},
+				status.HTTP_400_BAD_REQUEST : {
+					'description': 'Order status must be "RESERVED"'
+				},
+				status.HTTP_404_NOT_FOUND: {
+					'description': 'Order not found'
+				}
+			}
+		)
 
 	async def create(self, product: ProductCreate) -> ProductResponse:
 		if await self.service.exists_name(product.name):
@@ -105,7 +157,7 @@ class ProductRouter(APIRouter):
 	async def get_list(self,
 		filter: CategoryPaginationFilter = Depends(CategoryPaginationFilter.as_query)
 	) -> ProductListResponse:
-		product_list = await self.service.get_list(**filter.model_dump())
+		product_list = await self.service.get_list_with_free_count(**filter.model_dump())
 		return ProductListResponse.model_validate(product_list.model_dump())
 
 	async def update_count(self,
@@ -140,5 +192,28 @@ class ProductRouter(APIRouter):
 
 	async def delete_product(self, product_id: int = Query(...)):
 		await self.use_case.delete(product_id)
+
+
+	async def reserve(self,
+		reservation : ProductReserve,
+		product     : Product = Depends(get_product)
+	) -> OrderResponse:
+		if reservation.quantity > product.free_count:
+			raise HTTPException(
+				status.HTTP_400_BAD_REQUEST,
+				'Quantity must be less or equal to free product count'
+			)
+		if reservation.quantity <= 0:
+			raise HTTPException(status.HTTP_400_BAD_REQUEST, 'Quantity can\'t be less or equal to 0')
+		order = await self.use_case.reserve(product, reservation.user_id, reservation.quantity)
+		return OrderResponse.model_validate(order.model_dump())
+
+	async def cancel_reservation(self, order: Order = Depends(get_reserved_order)) -> OrderResponse:
+		order = await self.use_case.cancel_reservation(order)
+		return OrderResponse.model_validate(order.model_dump())
+
+	async def sell(self, order: Order = Depends(get_reserved_order)) -> OrderResponse:
+		order = await self.use_case.sell(order)
+		return OrderResponse.model_validate(order.model_dump())
 
 router = ProductRouter()

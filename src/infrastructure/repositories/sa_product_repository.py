@@ -36,13 +36,15 @@ class SaProductRepository(
 	entity_list = ProductList
 	table       = ProductTable
 
-	async def get_list(self,
+	async def get_list_with_free_count(self,
 		category_ids    : list[int],
 		subcategory_ids : list[int],
 		limit           : Optional[int],
 		offset          : Optional[int]
 	) -> ProductList:
-		q = self.select_q
+		q = self.select_q.where(
+			self.table.free_count > 0
+		)
 		if len(category_ids):
 			q = q.where(
 				self.table.category_id.in_(category_ids)

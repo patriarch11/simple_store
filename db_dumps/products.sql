@@ -92,7 +92,8 @@ CREATE TABLE public.orders (
     status public.orderstatus NOT NULL,
     created_at timestamp with time zone,
     updated_at timestamp with time zone,
-    amount double precision NOT NULL
+    quantity integer NOT NULL,
+    product_price double precision NOT NULL
 );
 
 
@@ -232,7 +233,7 @@ ALTER TABLE ONLY public.subcategories ALTER COLUMN id SET DEFAULT nextval('publi
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-0002
+0004
 \.
 
 
@@ -250,7 +251,7 @@ COPY public.categories (id, name, created_at, updated_at) FROM stdin;
 -- Data for Name: orders; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.orders (id, user_id, product_id, discount_pct, status, created_at, updated_at, amount) FROM stdin;
+COPY public.orders (id, user_id, product_id, discount_pct, status, created_at, updated_at, quantity, product_price) FROM stdin;
 \.
 
 
@@ -259,24 +260,24 @@ COPY public.orders (id, user_id, product_id, discount_pct, status, created_at, u
 --
 
 COPY public.products (id, category_id, subcategory_id, name, discount_pct, price, total_count, free_count, created_at, updated_at) FROM stdin;
-1	1	3	arduino	0	0	0	0	2024-08-30 23:48:38.429025+03	\N
-2	1	3	raspberry pi 3	0	0	0	0	2024-08-30 23:49:05.600496+03	\N
-3	1	3	raspberry pi 4	0	0	0	0	2024-08-30 23:49:09.932104+03	\N
-4	1	3	raspberry pi 5	0	0	0	0	2024-08-30 23:49:16.143224+03	\N
-5	1	3	banana pi	0	0	0	0	2024-08-30 23:49:34.078379+03	\N
-6	1	2	chinese laptop	0	0	0	0	2024-08-30 23:50:26.532282+03	\N
-7	1	2	laptop 2	0	0	0	0	2024-08-30 23:51:02.469813+03	\N
-8	1	2	laptop 3	0	0	0	0	2024-08-30 23:51:08.684058+03	\N
-9	1	2	laptop 4	0	0	0	0	2024-08-30 23:51:14.429154+03	\N
-10	1	2	laptop 5	0	0	0	0	2024-08-30 23:51:19.433281+03	\N
-11	1	1	phone	0	0	0	0	2024-08-30 23:51:26.57478+03	\N
-12	1	1	cell phone	0	0	0	0	2024-08-30 23:51:33.961949+03	\N
-13	1	1	mobile phone	0	0	0	0	2024-08-30 23:51:41.047829+03	\N
-14	1	1	grandmother's phone	0	0	0	0	2024-08-30 23:51:58.084966+03	\N
-15	2	4	white shirt	0	0	0	0	2024-08-30 23:53:43.402405+03	\N
-16	2	4	red shirt	0	0	0	0	2024-08-30 23:53:50.677785+03	\N
-17	2	4	green shirt	0	0	0	0	2024-08-30 23:53:56.136687+03	\N
-18	2	4	blue shirt	0	0	0	0	2024-08-30 23:54:01.633732+03	\N
+1	1	3	arduino	0	0	100	100	2024-08-30 23:48:38.429025+03	2024-08-31 18:41:25.459185+03
+2	1	3	raspberry pi 3	0	0	100	100	2024-08-30 23:49:05.600496+03	2024-08-31 18:41:44.50771+03
+3	1	3	raspberry pi 4	0	0	100	100	2024-08-30 23:49:09.932104+03	2024-08-31 18:41:49.926366+03
+4	1	3	raspberry pi 5	0	0	100	100	2024-08-30 23:49:16.143224+03	2024-08-31 18:41:54.834983+03
+5	1	3	banana pi	0	0	100	100	2024-08-30 23:49:34.078379+03	2024-08-31 18:41:59.461248+03
+6	1	2	chinese laptop	0	0	100	100	2024-08-30 23:50:26.532282+03	2024-08-31 18:42:03.596832+03
+7	1	2	laptop 2	0	0	100	100	2024-08-30 23:51:02.469813+03	2024-08-31 18:42:14.805714+03
+8	1	2	laptop 3	0	0	100	100	2024-08-30 23:51:08.684058+03	2024-08-31 18:42:21.722369+03
+9	1	2	laptop 4	0	0	100	100	2024-08-30 23:51:14.429154+03	2024-08-31 18:42:27.582338+03
+10	1	2	laptop 5	0	0	100	100	2024-08-30 23:51:19.433281+03	2024-08-31 18:42:31.954064+03
+11	1	1	phone	0	0	100	100	2024-08-30 23:51:26.57478+03	2024-08-31 18:42:35.178769+03
+12	1	1	cell phone	0	0	100	100	2024-08-30 23:51:33.961949+03	2024-08-31 18:42:39.345565+03
+13	1	1	mobile phone	0	0	100	100	2024-08-30 23:51:41.047829+03	2024-08-31 18:42:42.942005+03
+14	1	1	grandmother's phone	0	0	100	100	2024-08-30 23:51:58.084966+03	2024-08-31 18:42:51.533435+03
+15	2	4	white shirt	0	0	100	100	2024-08-30 23:53:43.402405+03	2024-08-31 18:42:56.479956+03
+16	2	4	red shirt	0	0	100	100	2024-08-30 23:53:50.677785+03	2024-08-31 18:42:59.696794+03
+17	2	4	green shirt	0	0	100	100	2024-08-30 23:53:56.136687+03	2024-08-31 18:43:03.600421+03
+18	2	4	blue shirt	0	0	100	100	2024-08-30 23:54:01.633732+03	2024-08-31 18:43:08.37971+03
 \.
 
 
@@ -304,14 +305,14 @@ SELECT pg_catalog.setval('public.categories_id_seq', 2, true);
 -- Name: orders_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.orders_id_seq', 1, false);
+SELECT pg_catalog.setval('public.orders_id_seq', 5, true);
 
 
 --
 -- Name: products_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.products_id_seq', 19, true);
+SELECT pg_catalog.setval('public.products_id_seq', 21, true);
 
 
 --

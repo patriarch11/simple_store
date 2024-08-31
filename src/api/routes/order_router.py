@@ -8,15 +8,6 @@ class OrderRouter(APIRouter):
 		super().__init__(*args, **kwargs)
 		self.service = get_order_service()
 
-	async def reserve_product(self):
-		...
-
-	async def cancel_product_reservation(self):
-		...
-
-	async def sell(self):
-		...
-
 	async def get_sales_report(self):
 		...
 

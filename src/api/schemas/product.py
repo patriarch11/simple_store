@@ -27,6 +27,12 @@ class ProductDiscountUpdate(BaseModel):
 	discount_pct : float
 
 
+class ProductReserve(BaseModel):
+	product_id : int
+	user_id    : int
+	quantity   : int
+
+
 class ProductResponse(ResponseSchema, ProductCreate):
 	free_count: int = 0
 

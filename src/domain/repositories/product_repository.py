@@ -7,7 +7,7 @@ from src.library         import RepositoryABC
 
 class ProductRepository(RepositoryABC[Product, ProductList]):
 	@abstractmethod
-	async def get_list(self,
+	async def get_list_with_free_count(self,
 		category_ids    : list[int],
 		subcategory_ids : list[int],
 		limit           : Optional[int],

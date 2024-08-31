@@ -1,11 +1,17 @@
-from src.domain.entities     import Product
+from src.constants           import OrderStatus
+from src.domain.entities     import Order, Product
 from src.domain.repositories import ProductRepository
-from src.domain.services     import OrderService
+from src.domain.services     import OrderService, ProductService
 
 
 class ProductUseCase:
-	def __init__(self, repo: ProductRepository, order_service: OrderService):
+	def __init__(self,
+		repo          : ProductRepository,
+		service       : ProductService,
+		order_service : OrderService
+	):
 		self.repo          = repo
+		self.service       = service
 		self.order_service = order_service
 
 	async def update_count(self, product: Product, count: int) -> Product:
@@ -30,7 +36,7 @@ class ProductUseCase:
 		return await self.repo.update(product.id, to_update)
 
 	async def update_price(self, product_id: int, price: float) -> Product:
-		await self.order_service.update_reserved_amount_by_product_id(
+		await self.order_service.update_reserved_product_price_by_product_id(
 			product_id,
 			price
 		)
@@ -46,3 +52,25 @@ class ProductUseCase:
 	async def delete(self, product_id: int):
 		await self.order_service.delete_by_product_id(product_id)
 		await self.repo.delete(product_id)
+
+	async def reserve(self, product: Product, user_id: int, quantity: int) -> Order:
+		await self.service.decrease_free_count(product, quantity)
+		order = Order(
+			user_id       = user_id,
+			product_id    = product.id,
+			quantity      = quantity,
+			product_price = product.price,
+			discount_pct  = product.discount_pct,
+			status        = OrderStatus.RESERVED
+		)
+		return await self.order_service.create(order)
+
+	async def cancel_reservation(self, order: Order) -> Order:
+		product = await self.service.get_by_id(order.product_id)
+		await self.service.increase_free_count(product, order.quantity)
+		return await self.order_service.update_status(order.id, OrderStatus.CANCELLED)
+
+	async def sell(self, order: Order) -> Order:
+		product = await self.service.get_by_id(order.product_id)
+		await self.service.decrease_total_count(product, order.quantity)
+		return await self.order_service.update_status(order.id, OrderStatus.COMPLETED)

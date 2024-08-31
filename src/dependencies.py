@@ -32,5 +32,6 @@ def get_subcategory_service() -> SubcategoryService:
 def get_product_use_case() -> ProductUseCase:
 	return ProductUseCase(
 		SaProductRepository(DbSession),
+		get_product_service(),
 		get_order_service()
 	)
