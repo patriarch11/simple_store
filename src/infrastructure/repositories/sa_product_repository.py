@@ -36,15 +36,13 @@ class SaProductRepository(
 	entity_list = ProductList
 	table       = ProductTable
 
-	async def get_list_with_free_count(self,
+	def _list_q(self,
 		category_ids    : list[int],
 		subcategory_ids : list[int],
 		limit           : Optional[int],
 		offset          : Optional[int]
-	) -> ProductList:
-		q = self.select_q.where(
-			self.table.free_count > 0
-		)
+	):
+		q = self.select_q
 		if len(category_ids):
 			q = q.where(
 				self.table.category_id.in_(category_ids)
@@ -53,8 +51,38 @@ class SaProductRepository(
 			q = q.where(
 				self.table.subcategory_id.in_(subcategory_ids)
 			)
+		return self.paginate_q(q, limit, offset)
+
+	async def get_list(self,
+		category_ids    : list[int],
+		subcategory_ids : list[int],
+		limit           : Optional[int],
+		offset          : Optional[int]
+	) -> ProductList:
 		return self.entity_list.model_validate(
 			await self.fetch_many(
-				self.paginate_q(q, limit, offset)
+				self._list_q(
+					category_ids,
+					subcategory_ids,
+					limit,
+					offset
+				)
+			)
+		)
+
+	async def get_list_with_free_count(self,
+		category_ids    : list[int],
+		subcategory_ids : list[int],
+		limit           : Optional[int],
+		offset          : Optional[int]
+	) -> ProductList:
+		return self.entity_list.model_validate(
+			await self.fetch_many(
+				self._list_q(
+					category_ids,
+					subcategory_ids,
+					limit,
+					offset
+				).where(self.table.free_count > 0)
 			)
 		)

@@ -3,7 +3,10 @@ from .category    import (
 	CategoryResponse,
 	CategoryListResponse
 )
-from .common       import CategoryPaginationFilter
+from .filter       import (
+	CategoryPaginationFilter,
+	SalesReportPaginationFilter
+)
 from .order        import (
 	OrderRequest,
 	OrderResponse,

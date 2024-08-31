@@ -4,7 +4,7 @@ from src.domain.services             import (
 	ProductService,
 	SubcategoryService
 )
-from src.domain.use_cases            import ProductUseCase
+from src.domain.use_cases            import OrderUseCase, ProductUseCase
 from src.infrastructure.database     import DbSession
 from src.infrastructure.repositories import (
 	SaCategoryRepository,
@@ -34,4 +34,10 @@ def get_product_use_case() -> ProductUseCase:
 		SaProductRepository(DbSession),
 		get_product_service(),
 		get_order_service()
+	)
+
+def get_order_use_case() -> OrderUseCase:
+	return OrderUseCase(
+		SaOrderRepository(DbSession),
+		get_product_service()
 	)
