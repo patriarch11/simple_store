@@ -33,3 +33,15 @@ migrate-up:
 ## Create database dump
 dump:
 	. ./.env && sudo -u postgres pg_dump --dbname=simple_store > db_dumps/$(name).sql
+
+## Build docker image
+docker-build:
+	sudo docker build -t workaccpy/simple_store:latest -f Dockerfile .
+
+## Push docker image
+docker-push:
+	sudo docker push workaccpy/simple_store:latest
+
+## Run app in docker
+docker-run:
+	sudo docker run --network=host --env-file=.env workaccpy/simple_store:latest
