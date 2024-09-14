@@ -25,10 +25,10 @@ class ProductUseCase:
 				# cancel all product reservation
 				await self.order_service.cancel_reserved_by_product_id(product.id)
 			else:
-				free_count = product.free_count - difference
+				free_count = product.reserved_count - difference
 
 		elif difference > 0: # count was increased
-			free_count = product.free_count + difference
+			free_count = product.reserved_count + difference
 		else: # count not changed
 			return product
 

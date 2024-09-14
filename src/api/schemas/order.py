@@ -1,21 +1,28 @@
 from pydantic      import RootModel, BaseModel
 
 from src.constants import OrderStatus
-from src.library   import ResponseSchema
+from src.library   import Schema
+
+class OrderCreateSchema(BaseModel):
+	product_id : int
+	user_id    : int
+	quantity   : int
 
 
-class OrderRequest(BaseModel):
-	order_id: int
+class CancelOrderSchema(BaseModel):
+	id: int
 
-
-class OrderResponse(ResponseSchema):
-	user_id       : int
-	product_id    : int
-	quantity      : int
-	product_price : float
-	discount_pct  : float
-	status        : OrderStatus
-
-
-class OrderListResponse(RootModel[list[OrderResponse]]):
+class SellOrderSchema(CancelOrderSchema):
 	...
+
+class OrderSchema(Schema):
+	user_id    : int
+	product_id : int
+	quantity   : int
+	amount     : float
+	status     : OrderStatus
+
+
+class OrderListSchema(RootModel[list[OrderSchema]]):
+	...
+

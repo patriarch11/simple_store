@@ -1,41 +1,35 @@
 from pydantic    import BaseModel, RootModel
 
-from src.library import ResponseSchema
+from src.library import Schema
 
 
-class ProductCreate(BaseModel):
+class ProductCreateSchema(BaseModel):
 	category_id    : int
 	subcategory_id : int
 	name           : str
 	discount_pct   : float = 0.0
 	price          : float = 0.0
-	total_count    : int   = 0
+	reserved_count : int   = 0
 
 
-class ProductCountUpdate(BaseModel):
+class ProductCountUpdateSchema(BaseModel):
 	product_id : int
 	count      : int
 
 
-class ProductPriceUpdate(BaseModel):
+class ProductPriceUpdateSchema(BaseModel):
 	product_id : int
 	price      : float
 
 
-class ProductDiscountUpdate(BaseModel):
+class ProductDiscountUpdateSchema(BaseModel):
 	product_id   : int
 	discount_pct : float
 
 
-class ProductReserve(BaseModel):
-	product_id : int
-	user_id    : int
-	quantity   : int
+class ProductSchema(Schema, ProductCreateSchema):
+	reserved_count: int = 0
 
 
-class ProductResponse(ResponseSchema, ProductCreate):
-	free_count: int = 0
-
-
-class ProductListResponse(RootModel[list[ProductResponse]]):
+class ProductListSchema(RootModel[list[ProductSchema]]):
 	...

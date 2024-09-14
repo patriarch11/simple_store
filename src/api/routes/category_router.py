@@ -1,9 +1,9 @@
 from fastapi             import APIRouter, HTTPException, status
 
 from src.api.schemas     import (
-	CategoryCreate,
-	CategoryResponse,
-	CategoryListResponse
+	CategoryCreateSchema,
+	CategorySchema,
+	CategoryListSchema
 )
 from src.dependencies    import get_category_service
 from src.domain.entities import Category
@@ -19,7 +19,7 @@ class CategoryRouter(APIRouter):
 			methods   = ['POST'],
 			responses = {
 				status.HTTP_201_CREATED: {
-					'model'       : CategoryResponse,
+					'model'       : CategorySchema,
 					'description' : 'Category created successfully'
 				},
 				status.HTTP_409_CONFLICT: {'description': 'Category already exists'}
@@ -31,21 +31,21 @@ class CategoryRouter(APIRouter):
 			methods   = ['GET'],
 			responses = {
 				status.HTTP_200_OK : {
-					'model'       : CategoryListResponse,
+					'model'       : CategoryListSchema,
 					'description' : 'List of categories'
 				}
 			}
 		)
 
-	async def create(self, category : CategoryCreate) -> CategoryResponse:
+	async def create(self, category : CategoryCreateSchema) -> CategorySchema:
 		if await self.service.exists_name(category.name):
 			raise HTTPException(status.HTTP_409_CONFLICT, 'Category already exists')
 
 		new_category = await self.service.create(Category(**category.model_dump()))
-		return CategoryResponse(**new_category.model_dump())
+		return CategorySchema(**new_category.model_dump())
 
-	async def get_all(self) -> CategoryListResponse:
+	async def get_all(self) -> CategoryListSchema:
 		categories = await self.service.get_all()
-		return CategoryListResponse.model_validate(categories.model_dump())
+		return CategoryListSchema.model_validate(categories.model_dump())
 
 router = CategoryRouter()

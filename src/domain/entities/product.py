@@ -10,13 +10,17 @@ class Product(Entity):
 	discount_pct   : float = 0.0
 	price          : float = 0.0
 	total_count    : int   = 0
-	free_count     : int   = 0
+	reserved_count : int   = 0
 
 	@model_validator(mode='after')
-	def validate_free_count(self):
-		if self.free_count > self.total_count:
-			raise ValueError('Free count can not be greater than total count')
+	def validate_reserved_count(self):
+		if self.reserved_count > self.total_count:
+			raise ValueError('Reserved count can not be greater than total count')
 		return self
+
+	@property
+	def free_count(self) -> int:
+		return self.total_count - self.reserved_count
 
 class ProductList(EntityList[Product]):
 	...

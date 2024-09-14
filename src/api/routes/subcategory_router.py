@@ -1,9 +1,9 @@
 from fastapi                     import APIRouter, HTTPException, status
 
 from src.api.schemas.subcategory import (
-	SubcategoryCreate,
-	SubcategoryResponse,
-	SubcategoryListResponse
+	SubcategoryCreateSchema,
+	SubcategorySchema,
+	SubcategoryListSchema
 )
 from src.dependencies            import get_category_service, get_subcategory_service
 from src.domain.entities         import Subcategory
@@ -20,7 +20,7 @@ class SubcategoryRouter(APIRouter):
 			methods   = ['POST'],
 			responses = {
 				status.HTTP_201_CREATED: {
-					'model'       : SubcategoryResponse,
+					'model'       : SubcategorySchema,
 					'description' : 'Category created'
 				},
 				status.HTTP_404_NOT_FOUND : {'description': 'Category does not exists'},
@@ -33,24 +33,24 @@ class SubcategoryRouter(APIRouter):
 			methods   = ['GET'],
 			responses = {
 				status.HTTP_200_OK : {
-					'model'       : SubcategoryListResponse,
+					'model'       : SubcategoryListSchema,
 					'description' : 'List of subcategories'
 				}
 			}
 		)
 
-	async def create(self, subcategory: SubcategoryCreate) -> SubcategoryResponse:
+	async def create(self, subcategory: SubcategoryCreateSchema) -> Subcategory:
 		if not await self.category_service.exists_id(subcategory.category_id):
 			raise HTTPException(status.HTTP_404_NOT_FOUND,'Category not found')
 
 		if await self.service.exists_name(subcategory.name):
 			raise HTTPException(status.HTTP_409_CONFLICT, 'Subcategory already exists')
 
-		new_subcategory = await self.service.create(Subcategory(**subcategory.model_dump()))
-		return SubcategoryResponse(**new_subcategory.model_dump())
+		new_subcategory = await self.service.create(SubcategorySchema(**subcategory.model_dump()))
+		return SubcategorySchema(**new_subcategory.model_dump())
 
-	async def get_all(self) -> SubcategoryListResponse:
+	async def get_all(self) -> SubcategoryListSchema:
 		subcategories = await self.service.get_all()
-		return SubcategoryListResponse.model_validate(subcategories.model_dump())
+		return SubcategoryListSchema.model_validate(subcategories.model_dump())
 
 router = SubcategoryRouter()

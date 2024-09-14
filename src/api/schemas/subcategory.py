@@ -1,16 +1,16 @@
 from pydantic    import BaseModel, RootModel
 
-from src.library import ResponseSchema
+from src.library import Schema
 
 
-class SubcategoryCreate(BaseModel):
+class SubcategoryCreateSchema(BaseModel):
 	category_id : int
 	name        : str
 
 
-class SubcategoryResponse(ResponseSchema, SubcategoryCreate):
+class SubcategorySchema(Schema, SubcategoryCreateSchema):
 	...
 
 
-class SubcategoryListResponse(RootModel[list[SubcategoryResponse]]):
+class SubcategoryListSchema(RootModel[list[SubcategorySchema]]):
 	...

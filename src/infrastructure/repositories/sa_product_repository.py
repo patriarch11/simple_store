@@ -25,7 +25,7 @@ class ProductTable(Base, Table):
 	discount_pct   = Column(Float,   nullable=False, default=0.0)
 	price          = Column(Float,   nullable=False, default=0.0)
 	total_count    = Column(Integer, nullable=False)
-	free_count     = Column(Integer, nullable=False)
+	reserved_count = Column(Integer, nullable=False)
 
 
 class SaProductRepository(
@@ -83,6 +83,6 @@ class SaProductRepository(
 					subcategory_ids,
 					limit,
 					offset
-				).where(self.table.free_count > 0)
+				).where(self.table.reserved_count > 0)
 			)
 		)

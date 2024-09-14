@@ -1,36 +1,54 @@
-from typing                  import Optional
+from fastapi             import  HTTPException, status
 
-from src.domain.entities     import OrderList
-from src.domain.repositories import OrderRepository
-from src.domain.services     import ProductService
+from src.constants       import OrderStatus
+from src.domain.entities import BaseOrder, Order, OrderList, Product
+from src.domain.services import OrderService, ProductService
 
 
 class OrderUseCase:
-	def __init__(self, repo: OrderRepository, product_service: ProductService):
-		self.repo         = repo
+	def __init__(self, order_service: OrderService, product_service: ProductService):
+		self.order_service   = order_service
 		self.product_service = product_service
 
-	async def get_list_of_completed(self,
-		category_ids    : list[int],
-		subcategory_ids : list[int],
-		user_ids        : list[int],
-		product_ids     : list[int],
-		limit           : Optional[int],
-		offset          : Optional[int]
-	) -> OrderList:
-		if len(category_ids) or len(subcategory_ids):
-			products = await self.product_service.get_list(
-				category_ids,
-				subcategory_ids,
-				None,
-				None
-			)
-			product_ids.extend(
-				[p.id for p in products.root]
-			)
-		return await self.repo.get_list_of_completed(
-			user_ids,
-			product_ids,
-			limit,
-			offset
-		)
+	async def _get_reserved_order_by_id(self, order_id: int) -> BaseOrder:
+		order = await self.order_service.get_by_id(order_id)
+		if not order:
+			raise HTTPException(status.HTTP_404_NOT_FOUND, 'Order not found')
+		if order.status != OrderStatus.RESERVED:
+			raise HTTPException(status.HTTP_400_BAD_REQUEST, 'Order not reserved')
+		return order
+
+	async def _get_product_by_id(self, product_id: int) -> Product:
+		product = await self.product_service.get_by_id(product_id)
+		if not product:
+			raise HTTPException(status.HTTP_404_NOT_FOUND, 'Product not found')
+		return product
+
+	async def create(self, product_id: int, user_id: int, quantity: int) -> Order:
+		if quantity <= 0:
+			raise HTTPException(status.HTTP_400_BAD_REQUEST, 'Quantity can\'n be less or equal 0')
+
+		product = await self.product_service.get_by_id(product_id)
+		await self.product_service.update_reserved_count(product, quantity)
+		order = await self.order_service.create(BaseOrder(
+			user_id       = user_id,
+			product_id    = product.id,
+			quantity      = quantity,
+			status        = OrderStatus.RESERVED
+		))
+		return Order.from_base_and_product(order, product.price, product.discount_pct)
+
+	async def cancel(self, order_id: int) -> Order:
+		order   = await self._get_reserved_order_by_id(order_id)
+		product = await self._get_product_by_id(order.product_id)
+		await self.product_service.update_reserved_count(product, -order.quantity)
+		order = await self.order_service.update_status(order.id, OrderStatus.CANCELLED)
+		return Order.from_base_and_product(order, product.price, product.discount_pct)
+
+	async def sell(self, order_id: int) -> Order:
+		order   = await self._get_reserved_order_by_id(order_id)
+		product = await self._get_product_by_id(order.product_id)
+		await self.product_service.update_reserved_count(product, -order.quantity)
+		await self.product_service.update_total_count(product, -order.quantity)
+		order = await self.order_service.update_status(order.id, OrderStatus.COMPLETED)
+		return Order.from_base_and_product(order, product.price, product.discount_pct)

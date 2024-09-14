@@ -38,6 +38,6 @@ def get_product_use_case() -> ProductUseCase:
 
 def get_order_use_case() -> OrderUseCase:
 	return OrderUseCase(
-		SaOrderRepository(DbSession),
+		get_order_service(),
 		get_product_service()
 	)

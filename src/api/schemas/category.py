@@ -1,15 +1,15 @@
 from pydantic    import BaseModel, RootModel
 
-from src.library import ResponseSchema
+from src.library import Schema
 
 
-class CategoryCreate(BaseModel):
+class CategoryCreateSchema(BaseModel):
 	name: str
 
 
-class CategoryResponse(ResponseSchema, CategoryCreate):
+class CategorySchema(Schema, CategoryCreateSchema):
 	...
 
 
-class CategoryListResponse(RootModel[list[CategoryResponse]]):
+class CategoryListSchema(RootModel[list[CategorySchema]]):
 	...
