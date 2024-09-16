@@ -124,17 +124,10 @@ This section outlines the endpoints available for managing product categories, s
 
 ---
 
-#### 📊 **Sales Report** (`/order/report/sales`)
+#### 📊 **Sales Report** (`/report/sales`)
 
-- **Description**: Obtain a report of sold products with the following filters:
-  - **Categories**
-  - **Subcategories**
-  - **Users**
-  - **Products**
-- **Pagination**: Supports pagination with parameters:
-  - **limit**
-  - **offset**
-- **Purpose**: Generates a detailed sales report based on specified filters and pagination.
+- **Description**: Obtain a report on product sales.
+- **Purpose**: Generates a detailed sales report based on specified filters.
 
 ---
 
@@ -162,7 +155,6 @@ This section outlines the endpoints available for managing product categories, s
 #### 🔄 **Update Product Quantity** (`/product/update/count`)
 
 - **Description**: Change the quantity of a product.
-- **Impact**: Orders with the status "RESERVED" are canceled if the quantity is reduced to zero.
 - **Purpose**: Adjusts the available quantity of a product and manages reservations accordingly.
 
 ---
@@ -191,24 +183,24 @@ This section outlines the endpoints available for managing product categories, s
 
 ---
 
-#### 🔒 **Reserve Product** (`/product/reserve`)
+#### 🔒 **Reserve Product** (`/order/create`)
 
 - **Description**: Reserve a product.
-- **Impact**: Decreases the available quantity and creates an order with the status "RESERVED."
+- **Impact**: Increases the reserved quantity and creates an order with the status "RESERVED."
 - **Purpose**: Marks a product as reserved and adjusts its available quantity.
 
 ---
 
-#### 🚫 **Cancel Product Reservation** (`/product/cancel_reservation`)
+#### 🚫 **Cancel Product Reservation** (`/order/cancel`)
 
 - **Description**: Cancel a product reservation.
-- **Impact**: Increases the available quantity and changes the order status to "CANCELLED."
+- **Impact**: Decreases the reserved quantity and changes the order status to "CANCELLED."
 - **Purpose**: Releases a reserved product and updates the order status.
 
 ---
 
-#### 💰 **Sell Product** (`/product/sell`)
+#### 💰 **Sell Product** (`/order/sell`)
 
 - **Description**: Sell a product.
-- **Impact**: Decreases the total product quantity and changes the order status to "COMPLETED."
+- **Impact**: Decreases the total product quantity and the reserved product quantity, changes the order status to "COMPLETED."
 - **Purpose**: Finalizes the sale of a product and updates its quantity and order status.
