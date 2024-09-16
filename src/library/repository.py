@@ -1,10 +1,16 @@
-from typing     import Any, Optional, Union, Type, TypeVar, Generic
+from typing    import (
+	Optional,
+	Union,
+	Type,
+	TypeVar,
+	Generic,
+	Any
+)
 
 from sqlalchemy import (
 	Insert,
 	Select,
 	Update,
-	Delete,
 
 	insert,
 	select,
@@ -12,9 +18,8 @@ from sqlalchemy import (
 	delete,
 
 )
-from sqlalchemy.engine.cursor import CursorResult
-from sqlalchemy.engine.result import ScalarResult
 from sqlalchemy.ext.asyncio   import AsyncSession
+
 
 from .entity                  import EntityT, EntityListT
 from .table                   import TableT
@@ -25,41 +30,33 @@ class Repository(Generic[EntityT, EntityListT, TableT]):
 	entity_list : Type[EntityListT]
 	table       : Type[TableT]
 
-	def __init__(self, session : AsyncSession):
-		self.session = session
+	@classmethod
+	async def insert_or_update(cls, s: AsyncSession, query: Union[Insert, Update]) -> dict[str, Any]:
+		result = await s.execute(query)
+		return dict(result.mappings().first())
 
-	async def insert_or_update(self, query: Union[Insert, Update]) -> dict[str, Any]:
-		async with self.session() as tx:
-			async with tx.begin(): # begin transaction and commit to session after executing
-				result: CursorResult = await tx.execute(query)
-				row = result.mappings().first()
-				return dict(row)
+	@classmethod
+	async def fetch_one(cls, s: AsyncSession, query: Select) -> Optional[dict[str, Any]]:
+		result = await s.execute(query)
+		row = result.mappings().fetchone()
+		return dict(row) if row else None
 
-	async def fetch_one(self, query: Select) -> Optional[dict[str, Any]]:
-		async with self.session() as tx:
-			result: CursorResult = await tx.execute(query)
-			row = result.mappings().fetchone()
-			return dict(row) if row else None
+	@classmethod
+	async def fetch_many(cls, s: AsyncSession, query: Select) -> list[dict[str, Any]]:
+		result = await s.execute(query)
+		rows = result.mappings().fetchall()
+		return [dict(row) for row in rows]
 
-	async def fetch_many(self, query: Select) -> list[dict[str, Any]]:
-		async with self.session() as tx:
-			result: CursorResult = await tx.execute(query)
-			rows = result.mappings().fetchall()
-			return [dict(row) for row in rows]
+	@classmethod
+	def select_q(cls) -> Select:
+		return select(cls.table.__table__.columns)
 
-	async def execute(self, query: Union[Insert, Update, Delete]) -> None:
-		async with self.session() as tx:
-			async with tx.begin():
-				await tx.execute(query)
+	@classmethod
+	def filter_q(cls, **filters: Any) -> Select:
+		return cls.select_q().filter_by(**filters)
 
-	@property
-	def select_q(self) -> Select:
-		return select(self.table.__table__.columns)
-
-	def filter_q(self, **filters: Any) -> Select:
-		return self.select_q.filter_by(**filters)
-
-	def paginate_q(self,
+	@classmethod
+	def paginate_q(cls,
 		q      : Select,
 		limit  : Optional[int],
 		offset : Optional[int]
@@ -70,66 +67,81 @@ class Repository(Generic[EntityT, EntityListT, TableT]):
 			q = q.limit(limit)
 		return q
 
-	async def create(self, entity: EntityT) -> EntityT:
-		data = await self.insert_or_update(
-			insert(self.table)
+	@classmethod
+	async def create(cls, s: AsyncSession, entity: EntityT) -> EntityT:
+		data = await cls.insert_or_update(
+			s,
+			insert(cls.table)
 				.values(**entity.to_db())
-				.returning(self.table.__table__.columns)
+				.returning(cls.table.__table__.columns)
 		)
-		return self.entity.model_validate(data)
+		return cls.entity.model_validate(data)
 
-	async def get_or_none(self, **filters: Any) -> Optional[EntityT]:
-		data = await self.fetch_one(
-			self.filter_q(**filters).limit(1)
+	@classmethod
+	async def get_or_none(cls, s: AsyncSession, **filters: Any) -> Optional[EntityT]:
+		data = await cls.fetch_one(
+			s,
+			cls.filter_q(**filters).limit(1)
 		)
 		if data:
-			return self.entity.model_validate(data)
+			return cls.entity.model_validate(data)
 
-	async def get_all(self,
+	@classmethod
+	async def get_all(cls,
+	    s      : AsyncSession,
 		limit  : Optional[int] = None,
 		offset : Optional[int] = None
 	) -> EntityListT:
-		return self.entity_list.model_validate(
-			await self.fetch_many(
-				self.paginate_q(self.select_q, limit, offset)
+		return cls.entity_list.model_validate(
+			await cls.fetch_many(
+				s,
+				cls.paginate_q(cls.select_q(), limit, offset)
 			)
 		)
 
-	async def filter(self,
+	@classmethod
+	async def filter(cls,
+	    s      : AsyncSession,
 		limit  : Optional[int] = None,
 		offset : Optional[int] = None,
 		**filters: Any
 	) -> EntityListT:
-		return self.entity_list.model_validate(
-			await self.fetch_many(
-				self.paginate_q(
-					self.filter_q(**filters),
+		return cls.entity_list.model_validate(
+			await cls.fetch_many(
+				s,
+				cls.paginate_q(
+					cls.filter_q(**filters),
 					limit,
 					offset
 				)
 			)
 		)
 
-	async def exists(self, **filters: Any) -> bool:
-		query = select(self.table).filter_by(**filters)
-		async with self.session() as tx:
-			result: ScalarResult = await tx.scalars(query)
-			row = result.first()
-			return bool(row)
+	@classmethod
+	async def exists(cls, s: AsyncSession, **filters: Any) -> bool:
+		result = await s.scalars(
+			select(cls.table)
+				.filter_by(**filters)
+		)
+		row = result.first()
+		return bool(row)
 
-	async def update(self, id: int, to_update: dict) -> EntityT:
-		data = await self.insert_or_update(
-			update(self.table)
+	@classmethod
+	async def update(cls, s: AsyncSession, id: int, to_update: dict) -> EntityT:
+		data = await cls.insert_or_update(
+			s,
+			update(cls.table)
 				.values(**to_update)
-				.where(self.table.id == id)
-				.returning(self.table.__table__.columns)
+				.where(cls.table.id == id)
+				.returning(cls.table.__table__.columns)
 		)
-		return self.entity.model_validate(data)
+		return cls.entity.model_validate(data)
 
-	async def delete(self, id: int):
-		await self.execute(
-			delete(self.table)
-				.where(self.table.id == id)
+	@classmethod
+	async def delete(cls, s: AsyncSession, id: int):
+		await s.execute(
+			delete(cls.table)
+				.where(cls.table.id == id)
 		)
 
-RepositoryT = TypeVar('RepositoryT', bound=Repository)
+RepositoryT = TypeVar('RepositoryT', bound='Repository')

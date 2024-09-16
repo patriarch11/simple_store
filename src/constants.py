@@ -9,6 +9,8 @@ DB_NAMING_CONVENTION = {
 	'pk': '%(table_name)s_pkey',
 }
 
+LOG_FORMAT = '{time} {level} {message}'
+
 
 class Environment(str, Enum):
 	LOCAL      = 'LOCAL'

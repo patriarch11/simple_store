@@ -8,6 +8,7 @@ from sqlalchemy                  import (
     ForeignKey,
 
 )
+from sqlalchemy.ext.asyncio       import AsyncSession
 
 from src.domain.entities          import Product, ProductList
 from src.domain.repositories      import ProductRepository
@@ -36,36 +37,40 @@ class SaProductRepository(
 	entity_list = ProductList
 	table       = ProductTable
 
-	def _list_q(self,
+	@classmethod
+	def _list_q(cls,
 		category_ids    : list[int],
 		subcategory_ids : list[int],
 		limit           : Optional[int],
 		offset          : Optional[int]
 	):
-		q = self.select_q
+		q = cls.select_q()
 		if len(category_ids):
 			q = q.where(
-				self.table.category_id.in_(category_ids)
+				cls.table.category_id.in_(category_ids)
 			)
 		if len(subcategory_ids):
 			q = q.where(
-				self.table.subcategory_id.in_(subcategory_ids)
+				cls.table.subcategory_id.in_(subcategory_ids)
 			)
-		return self.paginate_q(q, limit, offset)
+		return cls.paginate_q(q, limit, offset)
 
-	async def get_list_of_available(self,
+	@classmethod
+	async def get_list_of_available(cls,
+	    s               : AsyncSession,
 		category_ids    : list[int],
 		subcategory_ids : list[int],
 		limit           : Optional[int],
 		offset          : Optional[int]
 	) -> ProductList:
-		return self.entity_list.model_validate(
-			await self.fetch_many(
-				self._list_q(
+		return cls.entity_list.model_validate(
+			await cls.fetch_many(
+				s,
+				cls._list_q(
 					category_ids,
 					subcategory_ids,
 					limit,
 					offset
-				).where(self.table.total_count > self.table.reserved_count)
+				).where(cls.table.total_count > cls.table.reserved_count)
 			)
 		)

@@ -13,9 +13,9 @@ engine   = create_async_engine(
     echo = settings.DEBUG, # displaying SQL queries in the console
 )
 
-Base = declarative_base(metadata=metadata)
-DbSession: AsyncSession = sessionmaker(
+Base           = declarative_base(metadata=metadata)
+SessionFactory = sessionmaker(
     bind             = engine,
-    class_           = AsyncSession, # work with asynchronous sessions
-    expire_on_commit = False         # Sessions do not lose the object after a commit
+    class_           = AsyncSession,
+    # expire_on_commit = False # Sessions do not lose the object after a commit
 )

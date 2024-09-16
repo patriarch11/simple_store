@@ -91,7 +91,10 @@ CREATE TABLE public.orders (
     status public.orderstatus NOT NULL,
     created_at timestamp with time zone,
     updated_at timestamp with time zone,
-    quantity integer NOT NULL
+    quantity integer NOT NULL,
+    amount double precision NOT NULL,
+    product_price double precision NOT NULL,
+    product_discount_pct double precision NOT NULL
 );
 
 
@@ -231,7 +234,7 @@ ALTER TABLE ONLY public.subcategories ALTER COLUMN id SET DEFAULT nextval('publi
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-0004
+0001
 \.
 
 
@@ -242,6 +245,7 @@ COPY public.alembic_version (version_num) FROM stdin;
 COPY public.categories (id, name, created_at, updated_at) FROM stdin;
 1	electronics	2024-08-30 23:46:58.949524+03	\N
 2	clothes	2024-08-30 23:52:20.04068+03	\N
+3	test	2024-09-16 10:09:51.133579+03	\N
 \.
 
 
@@ -249,9 +253,7 @@ COPY public.categories (id, name, created_at, updated_at) FROM stdin;
 -- Data for Name: orders; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.orders (id, user_id, product_id, status, created_at, updated_at, quantity) FROM stdin;
-27	1	14	CANCELLED	2024-09-14 17:03:50.477924+03	2024-09-14 17:04:07.204321+03	5
-28	1	14	COMPLETED	2024-09-14 17:04:15.714908+03	2024-09-14 17:04:31.801523+03	5
+COPY public.orders (id, user_id, product_id, status, created_at, updated_at, quantity, amount, product_price, product_discount_pct) FROM stdin;
 \.
 
 
@@ -291,6 +293,7 @@ COPY public.subcategories (id, category_id, name, created_at, updated_at) FROM s
 3	1	mini-computers	2024-08-30 23:48:03.944936+03	\N
 4	2	shirts	2024-08-30 23:52:46.54733+03	\N
 5	2	pants	2024-08-30 23:52:58.177444+03	\N
+6	3	test	2024-09-16 10:10:17.084752+03	\N
 \.
 
 
@@ -298,28 +301,28 @@ COPY public.subcategories (id, category_id, name, created_at, updated_at) FROM s
 -- Name: categories_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.categories_id_seq', 2, true);
+SELECT pg_catalog.setval('public.categories_id_seq', 3, true);
 
 
 --
 -- Name: orders_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.orders_id_seq', 28, true);
+SELECT pg_catalog.setval('public.orders_id_seq', 43, true);
 
 
 --
 -- Name: products_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.products_id_seq', 21, true);
+SELECT pg_catalog.setval('public.products_id_seq', 22, true);
 
 
 --
 -- Name: subcategories_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.subcategories_id_seq', 5, true);
+SELECT pg_catalog.setval('public.subcategories_id_seq', 6, true);
 
 
 --

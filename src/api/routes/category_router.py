@@ -1,12 +1,13 @@
-from fastapi             import APIRouter, HTTPException, status
+from fastapi                import APIRouter, status, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.schemas     import (
+from src.api.schemas        import (
 	CategoryCreateSchema,
 	CategorySchema,
 	CategoryListSchema
 )
-from src.dependencies    import get_category_service
-from src.domain.entities import Category
+from src.dependencies       import get_category_service, get_session
+from src.domain.entities    import Category
 
 
 class CategoryRouter(APIRouter):
@@ -37,13 +38,16 @@ class CategoryRouter(APIRouter):
 			}
 		)
 
-	async def create(self, category : CategoryCreateSchema) -> CategorySchema:
+	async def create(self,
+	    category : CategoryCreateSchema,
+		s        : AsyncSession = Depends(get_session)
+	) -> CategorySchema:
 		return CategorySchema.from_entity(
-			await self.service.create(Category(**category.model_dump()))
+			await self.service.create(s, Category(**category.model_dump()))
 		)
 
-	async def get_all(self) -> CategoryListSchema:
-		categories = await self.service.get_all()
+	async def get_all(self, s: AsyncSession = Depends(get_session)) -> CategoryListSchema:
+		categories = await self.service.get_all(s)
 		return CategoryListSchema.model_validate(categories.model_dump())
 
 router = CategoryRouter()

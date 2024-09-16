@@ -16,11 +16,13 @@ class SellOrderSchema(CancelOrderSchema):
 	...
 
 class OrderSchema(Schema):
-	user_id    : int
-	product_id : int
-	quantity   : int
-	amount     : float
-	status     : OrderStatus
+	user_id              : int
+	product_id           : int
+	product_price        : float
+	product_discount_pct : float
+	quantity             : int
+	amount               : float
+	status               : OrderStatus
 
 
 class OrderListSchema(RootModel[list[OrderSchema]]):

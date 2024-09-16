@@ -1,6 +1,7 @@
-from fastapi              import APIRouter, Depends, HTTPException, Query, status
+from fastapi                import APIRouter, Depends, Query, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.schemas      import (
+from src.api.schemas        import (
 	CategoryPaginationFilter,
 	ProductCreateSchema,
 	ProductCountUpdateSchema,
@@ -9,9 +10,8 @@ from src.api.schemas      import (
 	ProductSchema,
 	ProductListSchema
 )
-from src.api.validators   import CategoryValidator
-from src.dependencies     import get_product_service
-from src.domain.entities  import Product
+from src.dependencies       import get_product_service, get_session
+from src.domain.entities    import Product
 
 
 class ProductRouter(APIRouter):
@@ -22,7 +22,6 @@ class ProductRouter(APIRouter):
 			'/create',
 			self.create,
 			methods      = ['POST'],
-			dependencies = [Depends(CategoryValidator())],
 			responses    = {
 				status.HTTP_201_CREATED: {
 					'model'       : ProductSchema,
@@ -90,40 +89,55 @@ class ProductRouter(APIRouter):
 			}
 		)
 
-	async def create(self, product: ProductCreateSchema) -> ProductSchema:
+	async def create(self, product: ProductCreateSchema, s: AsyncSession = Depends(get_session)) -> ProductSchema:
 		return ProductSchema.from_entity(
 			await self.service.create(
+				s,
 				Product.model_validate(product.model_dump())
 			)
 		)
 
 	async def get_list(self,
-		f: CategoryPaginationFilter = Depends(CategoryPaginationFilter.as_query)
+		f: CategoryPaginationFilter = Depends(CategoryPaginationFilter.as_query),
+		s: AsyncSession             = Depends(get_session)
 	) -> ProductListSchema:
-		product_list = await self.service.get_list_of_available(**f.model_dump())
+		product_list = await self.service.get_list_of_available(s, **f.model_dump())
 		return ProductListSchema.model_validate(product_list.model_dump())
 
-	async def update_count(self, count_schema: ProductCountUpdateSchema) -> ProductSchema:
+	async def update_count(self,
+	    count_schema : ProductCountUpdateSchema,
+	    s            : AsyncSession = Depends(get_session)
+	) -> ProductSchema:
 		return ProductSchema.from_entity(
 			await self.service.update_total_count(
-				await self.service.get_by_id(count_schema.id),
+				s,
+				await self.service.get_by_id(s, count_schema.id),
 				None,
 				count_schema.count
 			)
 		)
 
-	async def update_price(self, price_schema: ProductPriceUpdateSchema) -> ProductSchema:
+	async def update_price(self,
+	    price_schema : ProductPriceUpdateSchema,
+	    s            : AsyncSession = Depends(get_session)
+	) -> ProductSchema:
 		return ProductSchema.from_entity(
-			await self.service.update_price(price_schema.id, price_schema.price)
+			await self.service.update_price(s, price_schema.id, price_schema.price)
 		)
 
-	async def update_discount(self, discount_schema: ProductDiscountUpdateSchema) -> ProductSchema:
+	async def update_discount(self,
+	    discount_schema : ProductDiscountUpdateSchema,
+	    s               : AsyncSession = Depends(get_session)
+	) -> ProductSchema:
 		return ProductSchema.from_entity(
-			await self.service.update_discount(discount_schema.id, discount_schema.discount_pct)
+			await self.service.update_discount(s, discount_schema.id, discount_schema.discount_pct)
 		)
 
-	async def delete_product(self, product_id: int = Query(...)):
-		await self.service.delete(product_id)
+	async def delete_product(self,
+	    product_id : int          = Query(...),
+		s          : AsyncSession = Depends(get_session)
+	):
+		await self.service.delete(s, product_id)
 
 
 router = ProductRouter()

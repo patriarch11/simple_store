@@ -1,12 +1,13 @@
-from fastapi          import APIRouter, status
+from fastapi                import APIRouter, status, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.schemas  import (
+from src.api.schemas        import (
 	OrderSchema,
 	OrderCreateSchema,
 	CancelOrderSchema,
 	SellOrderSchema
 )
-from src.dependencies import get_order_use_case
+from src.dependencies      import get_order_use_case, get_session
 
 
 class OrderRouter(APIRouter):
@@ -65,19 +66,28 @@ class OrderRouter(APIRouter):
 			}
 		)
 
-	async def create(self, order: OrderCreateSchema) -> OrderSchema:
+	async def create(self,
+	    order: OrderCreateSchema,
+	    s    : AsyncSession = Depends(get_session)
+	) -> OrderSchema:
 		return OrderSchema.from_entity(
-			await self.use_case.create(order.product_id, order.user_id, order.quantity)
+			await self.use_case.create(s, order.product_id, order.user_id, order.quantity)
 		)
 
-	async def cancel(self, order: CancelOrderSchema) -> OrderSchema:
+	async def cancel(self,
+	    order : CancelOrderSchema,
+	    s     : AsyncSession = Depends(get_session)
+	) -> OrderSchema:
 		return OrderSchema.from_entity(
-			await self.use_case.cancel(order.id)
+			await self.use_case.cancel(s, order.id)
 		)
 
-	async def sell(self, order: SellOrderSchema) -> OrderSchema:
+	async def sell(self,
+	    order : SellOrderSchema,
+	    s     : AsyncSession = Depends(get_session)
+	) -> OrderSchema:
 		return OrderSchema.from_entity(
-			await self.use_case.sell(order.id)
+			await self.use_case.sell(s, order.id)
 		)
 
 router = OrderRouter()

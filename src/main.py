@@ -1,3 +1,5 @@
+from contextlib                import  asynccontextmanager
+
 from fastapi                   import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
@@ -8,6 +10,13 @@ from src.api.routes            import (
 	subcategory_router
 )
 from src.config                import app_configs, settings
+from src.logger                import configure_logger
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+	# configure logger
+	configure_logger()
+	yield
 
 app = FastAPI(**app_configs)
 

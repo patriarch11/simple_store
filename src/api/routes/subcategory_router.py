@@ -1,11 +1,13 @@
-from fastapi                     import APIRouter, HTTPException, status
+from fastapi                     import APIRouter, Depends, status
+from sqlalchemy.ext.asyncio      import AsyncSession
+
 
 from src.api.schemas.subcategory import (
 	SubcategoryCreateSchema,
 	SubcategorySchema,
 	SubcategoryListSchema
 )
-from src.dependencies            import get_category_service, get_subcategory_service
+from src.dependencies            import get_category_service, get_subcategory_service, get_session
 from src.domain.entities         import Subcategory
 
 
@@ -39,13 +41,16 @@ class SubcategoryRouter(APIRouter):
 			}
 		)
 
-	async def create(self, subcategory: SubcategoryCreateSchema) -> SubcategorySchema:
+	async def create(self,
+	    subcategory : SubcategoryCreateSchema,
+	    s           : AsyncSession = Depends(get_session)
+	) -> SubcategorySchema:
 		return SubcategorySchema.from_entity(
-			await self.service.create(Subcategory(**subcategory.model_dump()))
+			await self.service.create(s, Subcategory(**subcategory.model_dump()))
 		)
 
-	async def get_all(self) -> SubcategoryListSchema:
-		subcategories = await self.service.get_all()
+	async def get_all(self, s: AsyncSession = Depends(get_session)) -> SubcategoryListSchema:
+		subcategories = await self.service.get_all(s)
 		return SubcategoryListSchema.model_validate(subcategories.model_dump())
 
 router = SubcategoryRouter()
