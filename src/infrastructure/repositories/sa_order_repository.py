@@ -1,10 +1,13 @@
-from sqlalchemy                 import (
-    Column,
-    Integer,
-    Float,
-    ForeignKey,
+from typing import Optional
+
+from sqlalchemy import (
+	Column,
+	Integer,
+	Float,
+	ForeignKey,
 	Enum,
 
+	select,
 	update,
 	delete,
 
@@ -13,7 +16,7 @@ from sqlalchemy                 import (
 )
 from sqlalchemy.ext.asyncio       import AsyncSession
 
-from src.constants                import OrderStatus
+from src.constants                import OrderStatus, SalesReportOrder, SortOrder
 from src.domain.entities          import Order, OrderList
 from src.domain.repositories      import OrderRepository
 from src.infrastructure.database  import Base
@@ -32,6 +35,13 @@ class OrderTable(Base, Table):
 	amount               = Column(Float,   nullable=False)
 	status               = Column(Enum(OrderStatus), nullable=False)
 
+ORDER_TO_COLUMNS = {
+	SalesReportOrder.AMOUNT           : OrderTable.amount,
+	SalesReportOrder.DATE             : OrderTable.created_at,
+	SalesReportOrder.QUANTITY         : OrderTable.quantity,
+	SalesReportOrder.PRODUCT_PRICE    : OrderTable.product_price,
+	SalesReportOrder.PRODUCT_DISCOUNT : OrderTable.product_discount_pct
+}
 
 class SaOrderRepository(
 	Repository[Order, OrderList, OrderTable],
@@ -41,39 +51,50 @@ class SaOrderRepository(
 	entity_list = OrderList
 	table       = OrderTable
 
-	# def _list_q(self,
-	# 	user_ids    : list[int],
-	# 	product_ids : list[int],
-	# 	limit       : Optional[int],
-	# 	offset      : Optional[int]
-	# ):
-	# 	q = self.select_q
-	# 	if len(user_ids):
-	# 		q = q.where(
-	# 			self.table.user_id.in_(user_ids)
-	# 		)
-	# 	if len(product_ids):
-	# 		q = q.where(
-	# 			self.table.product_id.in_(product_ids)
-	# 		)
-	# 	return self.paginate_q(q, limit, offset)
-	#
-	# async def get_list(self,
-	# 	user_ids    : list[int],
-	# 	product_ids : list[int],
-	# 	limit       : Optional[int],
-	# 	offset      : Optional[int]
-	# ) -> OrderList:
-	# 	return self.entity_list.model_validate(
-	# 		await self.fetch_many(
-	# 			self._list_q(
-	# 				user_ids,
-	# 				product_ids,
-	# 				limit,
-	# 				offset
-	# 			)
-	# 		)
-	# 	)
+	@classmethod
+	async def get_list_by_filters(cls,
+	    s                  : AsyncSession,
+	    status             : OrderStatus,
+	    user_ids           : Optional[list[int]],
+	    product_ids        : Optional[list[int]],
+	    product_price_from : Optional[float],
+	    product_price_to   : Optional[float],
+	    amount_from        : Optional[float],
+	    amount_to          : Optional[float],
+	    order_by           : Optional[SalesReportOrder],
+	    sort_by            : Optional[SortOrder] = SortOrder.ASCENDING,
+	) -> OrderList:
+		and_clauses = []
+		if status:
+			and_clauses.append(cls.table.status == status)
+		if user_ids and len(user_ids):
+			and_clauses.append(cls.table.user_id.in_(user_ids))
+		if product_ids and len(product_ids):
+			and_clauses.append(cls.table.product_id.in_(product_ids))
+		if product_price_from:
+			and_clauses.append(cls.table.product_price >= product_price_from)
+		if product_price_to:
+			and_clauses.append(cls.table.product_price <= product_price_from)
+		if amount_from:
+			and_clauses.append(cls.table.amount >= amount_from)
+		if amount_to:
+			and_clauses.append(cls.table.amount <= amount_to)
+		q = select(cls.table)
+		if len(and_clauses):
+			q = q.where(and_(*and_clauses))
+		if order_by:
+			column = ORDER_TO_COLUMNS.get(order_by)
+			match sort_by:
+				case SortOrder.ASCENDING:
+					q = q.order_by(column.asc())
+				case SortOrder.DESCENDING:
+					q = q.order_by(column.desc())
+		res  = await s.execute(q)
+		rows = res.fetchall()
+		return cls.entity_list.model_validate(
+			[r[0].__dict__ for r in rows]
+		)
+
 	@classmethod
 	async def update_reserved_amount_by_product_id(cls, s: AsyncSession, product_id : int):
 		await s.execute(

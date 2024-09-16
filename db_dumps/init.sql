@@ -246,6 +246,7 @@ COPY public.categories (id, name, created_at, updated_at) FROM stdin;
 1	electronics	2024-08-30 23:46:58.949524+03	\N
 2	clothes	2024-08-30 23:52:20.04068+03	\N
 3	test	2024-09-16 10:09:51.133579+03	\N
+4	test cat	2024-09-16 15:56:28.005879+03	\N
 \.
 
 
@@ -254,6 +255,10 @@ COPY public.categories (id, name, created_at, updated_at) FROM stdin;
 --
 
 COPY public.orders (id, user_id, product_id, status, created_at, updated_at, quantity, amount, product_price, product_discount_pct) FROM stdin;
+46	0	1	RESERVED	2024-09-16 13:06:49.124415+03	2024-09-16 13:15:58.121703+03	5	49.5	10	1
+47	1	1	RESERVED	2024-09-16 13:08:42.227199+03	2024-09-16 13:15:58.121703+03	5	49.5	10	1
+50	0	1	RESERVED	2024-09-16 18:54:55.444841+03	\N	15	148.5	10	1
+51	3	6	RESERVED	2024-09-16 18:55:08.584498+03	\N	44	6600	150	0
 \.
 
 
@@ -262,24 +267,24 @@ COPY public.orders (id, user_id, product_id, status, created_at, updated_at, qua
 --
 
 COPY public.products (id, category_id, subcategory_id, name, discount_pct, price, total_count, reserved_count, created_at, updated_at) FROM stdin;
-11	1	1	phone	0	0	99	0	2024-08-30 23:51:26.57478+03	2024-08-31 22:10:02.557206+03
-1	1	3	arduino	0	0	100	0	2024-08-30 23:48:38.429025+03	2024-08-31 18:41:25.459185+03
-2	1	3	raspberry pi 3	0	0	100	0	2024-08-30 23:49:05.600496+03	2024-08-31 18:41:44.50771+03
-3	1	3	raspberry pi 4	0	0	100	0	2024-08-30 23:49:09.932104+03	2024-08-31 18:41:49.926366+03
-4	1	3	raspberry pi 5	0	0	100	0	2024-08-30 23:49:16.143224+03	2024-08-31 18:41:54.834983+03
-5	1	3	banana pi	0	0	100	0	2024-08-30 23:49:34.078379+03	2024-08-31 18:41:59.461248+03
-6	1	2	chinese laptop	0	0	100	0	2024-08-30 23:50:26.532282+03	2024-08-31 18:42:03.596832+03
-7	1	2	laptop 2	0	0	100	0	2024-08-30 23:51:02.469813+03	2024-08-31 18:42:14.805714+03
-8	1	2	laptop 3	0	0	100	0	2024-08-30 23:51:08.684058+03	2024-08-31 18:42:21.722369+03
-10	1	2	laptop 5	0	0	100	0	2024-08-30 23:51:19.433281+03	2024-08-31 18:42:31.954064+03
-12	1	1	cell phone	0	0	100	0	2024-08-30 23:51:33.961949+03	2024-08-31 18:42:39.345565+03
-13	1	1	mobile phone	0	0	100	0	2024-08-30 23:51:41.047829+03	2024-08-31 18:42:42.942005+03
-15	2	4	white shirt	0	0	100	0	2024-08-30 23:53:43.402405+03	2024-08-31 18:42:56.479956+03
-16	2	4	red shirt	0	0	100	0	2024-08-30 23:53:50.677785+03	2024-08-31 18:42:59.696794+03
-17	2	4	green shirt	0	0	100	0	2024-08-30 23:53:56.136687+03	2024-08-31 18:43:03.600421+03
-18	2	4	blue shirt	0	0	93	0	2024-08-30 23:54:01.633732+03	2024-08-31 22:08:25.776102+03
-9	1	2	laptop 4	0	0	98	0	2024-08-30 23:51:14.429154+03	2024-08-31 22:09:57.347966+03
 14	1	1	grandmother's phone	10	100	95	0	2024-08-30 23:51:58.084966+03	2024-09-14 17:04:31.799359+03
+15	2	4	white shirt	0	3252	100	0	2024-08-30 23:53:43.402405+03	2024-08-31 18:42:56.479956+03
+3	1	3	raspberry pi 4	0	200	100	0	2024-08-30 23:49:09.932104+03	2024-08-31 18:41:49.926366+03
+18	2	4	blue shirt	0	325	93	0	2024-08-30 23:54:01.633732+03	2024-08-31 22:08:25.776102+03
+8	1	2	laptop 3	0	2352	100	0	2024-08-30 23:51:08.684058+03	2024-08-31 18:42:21.722369+03
+5	1	3	banana pi	0	300	100	0	2024-08-30 23:49:34.078379+03	2024-08-31 18:41:59.461248+03
+17	2	4	green shirt	0	235	100	0	2024-08-30 23:53:56.136687+03	2024-08-31 18:43:03.600421+03
+10	1	2	laptop 5	0	523	100	0	2024-08-30 23:51:19.433281+03	2024-08-31 18:42:31.954064+03
+2	1	3	raspberry pi 3	0	15	100	0	2024-08-30 23:49:05.600496+03	2024-08-31 18:41:44.50771+03
+7	1	2	laptop 2	0	241	100	0	2024-08-30 23:51:02.469813+03	2024-08-31 18:42:14.805714+03
+16	2	4	red shirt	0	235	100	0	2024-08-30 23:53:50.677785+03	2024-08-31 18:42:59.696794+03
+13	1	1	mobile phone	0	235	100	0	2024-08-30 23:51:41.047829+03	2024-08-31 18:42:42.942005+03
+9	1	2	laptop 4	0	235	98	0	2024-08-30 23:51:14.429154+03	2024-08-31 22:09:57.347966+03
+4	1	3	raspberry pi 5	0	2000	100	0	2024-08-30 23:49:16.143224+03	2024-08-31 18:41:54.834983+03
+12	1	1	cell phone	0	235	100	0	2024-08-30 23:51:33.961949+03	2024-08-31 18:42:39.345565+03
+11	1	1	phone	0	235	99	0	2024-08-30 23:51:26.57478+03	2024-08-31 22:10:02.557206+03
+1	1	3	arduino	1	10	100	25	2024-08-30 23:48:38.429025+03	2024-09-16 18:54:55.442278+03
+6	1	2	chinese laptop	0	150	100	44	2024-08-30 23:50:26.532282+03	2024-09-16 18:55:08.583097+03
 \.
 
 
@@ -294,6 +299,7 @@ COPY public.subcategories (id, category_id, name, created_at, updated_at) FROM s
 4	2	shirts	2024-08-30 23:52:46.54733+03	\N
 5	2	pants	2024-08-30 23:52:58.177444+03	\N
 6	3	test	2024-09-16 10:10:17.084752+03	\N
+7	4	test subcat	2024-09-16 15:56:47.590116+03	\N
 \.
 
 
@@ -301,28 +307,28 @@ COPY public.subcategories (id, category_id, name, created_at, updated_at) FROM s
 -- Name: categories_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.categories_id_seq', 3, true);
+SELECT pg_catalog.setval('public.categories_id_seq', 4, true);
 
 
 --
 -- Name: orders_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.orders_id_seq', 43, true);
+SELECT pg_catalog.setval('public.orders_id_seq', 51, true);
 
 
 --
 -- Name: products_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.products_id_seq', 22, true);
+SELECT pg_catalog.setval('public.products_id_seq', 23, true);
 
 
 --
 -- Name: subcategories_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.subcategories_id_seq', 6, true);
+SELECT pg_catalog.setval('public.subcategories_id_seq', 7, true);
 
 
 --

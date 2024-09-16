@@ -39,3 +39,16 @@ class OrderStatus(Enum):
 	RESERVED  = 1
 	COMPLETED = 2
 	CANCELLED = 3
+
+
+class SalesReportOrder(Enum):
+	AMOUNT           = 'AMOUNT'
+	DATE             = 'DATE'
+	QUANTITY         = 'QUANTITY'
+	PRODUCT_PRICE    = 'PRODUCT_PRICE'
+	PRODUCT_DISCOUNT = 'PRODUCT_DISCOUNT'
+
+
+class SortOrder(Enum):
+	ASCENDING  = 'ASCENDING'
+	DESCENDING = 'DESCENDING'

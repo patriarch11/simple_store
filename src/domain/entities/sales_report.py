@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 
 from .order   import  Order
@@ -10,3 +12,5 @@ class SalesReportItem(BaseModel):
 
 
 class SalesReport(BaseModel):
+	report     : list[SalesReportItem]
+	created_at : datetime

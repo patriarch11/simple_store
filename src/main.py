@@ -7,6 +7,7 @@ from src.api.routes            import (
 	category_router,
 	order_router,
 	product_router,
+	report_router,
 	subcategory_router
 )
 from src.config                import app_configs, settings
@@ -32,4 +33,5 @@ app.add_middleware(
 app.include_router(category_router,    prefix='/category',    tags=['category'])
 app.include_router(order_router,       prefix='/order',       tags=['order'])
 app.include_router(product_router,     prefix='/product',     tags=['product'])
+app.include_router(report_router,      prefix='/report',      tags=['report'])
 app.include_router(subcategory_router, prefix='/subcategory', tags=['subcategory'])

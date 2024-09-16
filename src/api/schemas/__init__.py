@@ -12,7 +12,7 @@ from .order import (
 )
 from .filter       import (
 	CategoryPaginationFilter,
-	SalesReportPaginationFilter
+	SalesReportFilter
 )
 from .product      import (
 	ProductCreateSchema,
@@ -22,6 +22,7 @@ from .product      import (
 	ProductSchema,
 	ProductListSchema
 )
+from .sales_report import SalesReportSchema
 from .subcategory  import (
 	SubcategoryCreateSchema,
 	SubcategorySchema,

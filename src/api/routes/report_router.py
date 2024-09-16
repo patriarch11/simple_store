@@ -3,23 +3,29 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 from src.api.schemas       import (
-	SalesReportPaginationFilter,
-	OrderListSchema
+	SalesReportFilter,
+	SalesReportSchema
 )
+from src.dependencies       import get_report_service, get_session
 
-class OrderRouter(APIRouter):
+
+class ReportRouter(APIRouter):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
+		self.service = get_report_service()
 		self.add_api_route(
-			'/report/sales',
+			'/sales',
 			self.get_sales_report,
 			methods   = ['GET'],
 			responses = {
-				status.HTTP_200_OK: {'model': OrderListSchema}
+				status.HTTP_200_OK: {'model': SalesReportSchema}
 			}
 		)
-	# async def get_sales_report(self,
-# 	filter: SalesReportPaginationFilter = Depends(SalesReportPaginationFilter.as_query)
-# ) -> OrderListResponse:
-# 	report = await self.use_case.get_list_of_completed(**filter.model_dump())
-# 	return OrderListResponse.model_validate(report.model_dump())
+	async def get_sales_report(self,
+	    f : SalesReportFilter = Depends(SalesReportFilter.as_query),
+		s : AsyncSession      = Depends(get_session)
+	) -> SalesReportSchema:
+		report = await self.service.get_sales_report(s, **f.model_dump())
+		return SalesReportSchema.model_validate(report.model_dump())
+
+router = ReportRouter()

@@ -7,6 +7,8 @@ from sqlalchemy                  import (
 	String,
     ForeignKey,
 
+	select,
+	or_
 )
 from sqlalchemy.ext.asyncio       import AsyncSession
 
@@ -73,4 +75,27 @@ class SaProductRepository(
 					offset
 				).where(cls.table.total_count > cls.table.reserved_count)
 			)
+		)
+
+	@classmethod
+	async def get_list_by_filters(cls,
+		s               : AsyncSession,
+		ids             : Optional[list[int]],
+		category_ids    : Optional[list[int]],
+		subcategory_ids : Optional[list[int]]
+	) -> ProductList:
+		or_clauses = []
+		if ids and len(ids):
+			or_clauses.append(cls.table.id.in_(ids))
+		if category_ids and len(category_ids):
+			or_clauses.append(cls.table.category_id.in_(category_ids))
+		if subcategory_ids and len(subcategory_ids):
+			or_clauses.append(cls.table.subcategory_id.in_(subcategory_ids))
+		q = select(cls.table)
+		if len(or_clauses):
+			q = q.where(or_(*or_clauses))
+		res = await s.execute(q)
+		rows = res.fetchall()
+		return cls.entity_list.model_validate(
+			[dict(r[0].__dict__) for r in rows]
 		)

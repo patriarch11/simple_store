@@ -7,6 +7,7 @@ from src.domain.services             import (
 	CategoryService,
 	OrderService,
 	ProductService,
+	ReportService,
 	SubcategoryService
 )
 from src.domain.use_cases            import OrderUseCase
@@ -54,6 +55,14 @@ def get_subcategory_service() -> SubcategoryService:
 	return SubcategoryService(
 		SaSubcategoryRepository,
 		SaCategoryRepository
+	)
+
+def get_report_service() -> ReportService:
+	return ReportService(
+		SaCategoryRepository,
+		SaSubcategoryRepository,
+		SaOrderRepository,
+		SaProductRepository,
 	)
 
 ########## USE CASES ##########

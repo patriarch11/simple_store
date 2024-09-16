@@ -1,9 +1,9 @@
-from fastapi             import  HTTPException, status
+from fastapi                import  HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.constants       import OrderStatus
-from src.domain.entities import Order
-from src.domain.services import OrderService, ProductService, CategoryService
+from src.constants          import OrderStatus
+from src.domain.entities    import Order
+from src.domain.services    import OrderService, ProductService
 
 
 class OrderUseCase:
