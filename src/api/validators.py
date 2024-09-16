@@ -51,6 +51,6 @@ class CategoryValidator:
 	):
 		subcategory = await self.subcategory_service.get_by_id(subcategory_id)
 		if not subcategory:
-			raise HTTPException(status.HTTP_404_NOT_FOUND, 'Subcaregory does not exists')
+			raise HTTPException(status.HTTP_404_NOT_FOUND, 'Subcategory does not exists')
 		if category_id and subcategory.category_id != category_id:
 			raise HTTPException(status.HTTP_400_BAD_REQUEST, 'Subcategory does not match for category')

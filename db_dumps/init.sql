@@ -88,12 +88,10 @@ CREATE TABLE public.orders (
     id integer NOT NULL,
     user_id integer NOT NULL,
     product_id integer NOT NULL,
-    discount_pct double precision NOT NULL,
     status public.orderstatus NOT NULL,
     created_at timestamp with time zone,
     updated_at timestamp with time zone,
-    quantity integer NOT NULL,
-    product_price double precision NOT NULL
+    quantity integer NOT NULL
 );
 
 
@@ -133,7 +131,7 @@ CREATE TABLE public.products (
     discount_pct double precision NOT NULL,
     price double precision NOT NULL,
     total_count integer NOT NULL,
-    free_count integer NOT NULL,
+    reserved_count integer NOT NULL,
     created_at timestamp with time zone,
     updated_at timestamp with time zone
 );
@@ -251,17 +249,9 @@ COPY public.categories (id, name, created_at, updated_at) FROM stdin;
 -- Data for Name: orders; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.orders (id, user_id, product_id, discount_pct, status, created_at, updated_at, quantity, product_price) FROM stdin;
-6	1	18	0	COMPLETED	2024-08-31 22:07:40.316851+03	2024-08-31 22:07:57.828666+03	1	0
-7	1	18	0	COMPLETED	2024-08-31 22:07:43.185655+03	2024-08-31 22:08:02.613787+03	1	0
-8	1	18	0	COMPLETED	2024-08-31 22:07:44.075479+03	2024-08-31 22:08:06.574978+03	1	0
-9	1	18	0	COMPLETED	2024-08-31 22:07:44.898916+03	2024-08-31 22:08:11.413693+03	1	0
-10	1	18	0	COMPLETED	2024-08-31 22:07:45.378917+03	2024-08-31 22:08:15.53202+03	1	0
-11	1	18	0	COMPLETED	2024-08-31 22:07:46.223938+03	2024-08-31 22:08:21.429132+03	1	0
-12	1	18	0	COMPLETED	2024-08-31 22:07:46.689451+03	2024-08-31 22:08:25.77852+03	1	0
-13	2	9	0	COMPLETED	2024-08-31 22:09:10.822789+03	2024-08-31 22:09:52.874419+03	1	0
-14	2	9	0	COMPLETED	2024-08-31 22:09:33.086699+03	2024-08-31 22:09:57.364971+03	1	0
-15	2	11	0	COMPLETED	2024-08-31 22:09:39.466509+03	2024-08-31 22:10:02.572078+03	1	0
+COPY public.orders (id, user_id, product_id, status, created_at, updated_at, quantity) FROM stdin;
+27	1	14	CANCELLED	2024-09-14 17:03:50.477924+03	2024-09-14 17:04:07.204321+03	5
+28	1	14	COMPLETED	2024-09-14 17:04:15.714908+03	2024-09-14 17:04:31.801523+03	5
 \.
 
 
@@ -269,25 +259,25 @@ COPY public.orders (id, user_id, product_id, discount_pct, status, created_at, u
 -- Data for Name: products; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.products (id, category_id, subcategory_id, name, discount_pct, price, total_count, free_count, created_at, updated_at) FROM stdin;
-11	1	1	phone	0	0	99	99	2024-08-30 23:51:26.57478+03	2024-08-31 22:10:02.557206+03
-1	1	3	arduino	0	0	100	100	2024-08-30 23:48:38.429025+03	2024-08-31 18:41:25.459185+03
-2	1	3	raspberry pi 3	0	0	100	100	2024-08-30 23:49:05.600496+03	2024-08-31 18:41:44.50771+03
-3	1	3	raspberry pi 4	0	0	100	100	2024-08-30 23:49:09.932104+03	2024-08-31 18:41:49.926366+03
-4	1	3	raspberry pi 5	0	0	100	100	2024-08-30 23:49:16.143224+03	2024-08-31 18:41:54.834983+03
-5	1	3	banana pi	0	0	100	100	2024-08-30 23:49:34.078379+03	2024-08-31 18:41:59.461248+03
-6	1	2	chinese laptop	0	0	100	100	2024-08-30 23:50:26.532282+03	2024-08-31 18:42:03.596832+03
-7	1	2	laptop 2	0	0	100	100	2024-08-30 23:51:02.469813+03	2024-08-31 18:42:14.805714+03
-8	1	2	laptop 3	0	0	100	100	2024-08-30 23:51:08.684058+03	2024-08-31 18:42:21.722369+03
-10	1	2	laptop 5	0	0	100	100	2024-08-30 23:51:19.433281+03	2024-08-31 18:42:31.954064+03
-12	1	1	cell phone	0	0	100	100	2024-08-30 23:51:33.961949+03	2024-08-31 18:42:39.345565+03
-13	1	1	mobile phone	0	0	100	100	2024-08-30 23:51:41.047829+03	2024-08-31 18:42:42.942005+03
-14	1	1	grandmother's phone	0	0	100	100	2024-08-30 23:51:58.084966+03	2024-08-31 18:42:51.533435+03
-15	2	4	white shirt	0	0	100	100	2024-08-30 23:53:43.402405+03	2024-08-31 18:42:56.479956+03
-16	2	4	red shirt	0	0	100	100	2024-08-30 23:53:50.677785+03	2024-08-31 18:42:59.696794+03
-17	2	4	green shirt	0	0	100	100	2024-08-30 23:53:56.136687+03	2024-08-31 18:43:03.600421+03
-18	2	4	blue shirt	0	0	93	93	2024-08-30 23:54:01.633732+03	2024-08-31 22:08:25.776102+03
-9	1	2	laptop 4	0	0	98	98	2024-08-30 23:51:14.429154+03	2024-08-31 22:09:57.347966+03
+COPY public.products (id, category_id, subcategory_id, name, discount_pct, price, total_count, reserved_count, created_at, updated_at) FROM stdin;
+11	1	1	phone	0	0	99	0	2024-08-30 23:51:26.57478+03	2024-08-31 22:10:02.557206+03
+1	1	3	arduino	0	0	100	0	2024-08-30 23:48:38.429025+03	2024-08-31 18:41:25.459185+03
+2	1	3	raspberry pi 3	0	0	100	0	2024-08-30 23:49:05.600496+03	2024-08-31 18:41:44.50771+03
+3	1	3	raspberry pi 4	0	0	100	0	2024-08-30 23:49:09.932104+03	2024-08-31 18:41:49.926366+03
+4	1	3	raspberry pi 5	0	0	100	0	2024-08-30 23:49:16.143224+03	2024-08-31 18:41:54.834983+03
+5	1	3	banana pi	0	0	100	0	2024-08-30 23:49:34.078379+03	2024-08-31 18:41:59.461248+03
+6	1	2	chinese laptop	0	0	100	0	2024-08-30 23:50:26.532282+03	2024-08-31 18:42:03.596832+03
+7	1	2	laptop 2	0	0	100	0	2024-08-30 23:51:02.469813+03	2024-08-31 18:42:14.805714+03
+8	1	2	laptop 3	0	0	100	0	2024-08-30 23:51:08.684058+03	2024-08-31 18:42:21.722369+03
+10	1	2	laptop 5	0	0	100	0	2024-08-30 23:51:19.433281+03	2024-08-31 18:42:31.954064+03
+12	1	1	cell phone	0	0	100	0	2024-08-30 23:51:33.961949+03	2024-08-31 18:42:39.345565+03
+13	1	1	mobile phone	0	0	100	0	2024-08-30 23:51:41.047829+03	2024-08-31 18:42:42.942005+03
+15	2	4	white shirt	0	0	100	0	2024-08-30 23:53:43.402405+03	2024-08-31 18:42:56.479956+03
+16	2	4	red shirt	0	0	100	0	2024-08-30 23:53:50.677785+03	2024-08-31 18:42:59.696794+03
+17	2	4	green shirt	0	0	100	0	2024-08-30 23:53:56.136687+03	2024-08-31 18:43:03.600421+03
+18	2	4	blue shirt	0	0	93	0	2024-08-30 23:54:01.633732+03	2024-08-31 22:08:25.776102+03
+9	1	2	laptop 4	0	0	98	0	2024-08-30 23:51:14.429154+03	2024-08-31 22:09:57.347966+03
+14	1	1	grandmother's phone	10	100	95	0	2024-08-30 23:51:58.084966+03	2024-09-14 17:04:31.799359+03
 \.
 
 
@@ -315,7 +305,7 @@ SELECT pg_catalog.setval('public.categories_id_seq', 2, true);
 -- Name: orders_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.orders_id_seq', 15, true);
+SELECT pg_catalog.setval('public.orders_id_seq', 28, true);
 
 
 --

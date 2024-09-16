@@ -53,7 +53,7 @@ class SaProductRepository(
 			)
 		return self.paginate_q(q, limit, offset)
 
-	async def get_list(self,
+	async def get_list_of_available(self,
 		category_ids    : list[int],
 		subcategory_ids : list[int],
 		limit           : Optional[int],
@@ -66,23 +66,6 @@ class SaProductRepository(
 					subcategory_ids,
 					limit,
 					offset
-				)
-			)
-		)
-
-	async def get_list_with_free_count(self,
-		category_ids    : list[int],
-		subcategory_ids : list[int],
-		limit           : Optional[int],
-		offset          : Optional[int]
-	) -> ProductList:
-		return self.entity_list.model_validate(
-			await self.fetch_many(
-				self._list_q(
-					category_ids,
-					subcategory_ids,
-					limit,
-					offset
-				).where(self.table.reserved_count > 0)
+				).where(self.table.total_count > self.table.reserved_count)
 			)
 		)

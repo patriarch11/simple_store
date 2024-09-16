@@ -38,11 +38,9 @@ class CategoryRouter(APIRouter):
 		)
 
 	async def create(self, category : CategoryCreateSchema) -> CategorySchema:
-		if await self.service.exists_name(category.name):
-			raise HTTPException(status.HTTP_409_CONFLICT, 'Category already exists')
-
-		new_category = await self.service.create(Category(**category.model_dump()))
-		return CategorySchema(**new_category.model_dump())
+		return CategorySchema.from_entity(
+			await self.service.create(Category(**category.model_dump()))
+		)
 
 	async def get_all(self) -> CategoryListSchema:
 		categories = await self.service.get_all()

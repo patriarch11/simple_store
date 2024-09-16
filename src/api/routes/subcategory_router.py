@@ -39,15 +39,10 @@ class SubcategoryRouter(APIRouter):
 			}
 		)
 
-	async def create(self, subcategory: SubcategoryCreateSchema) -> Subcategory:
-		if not await self.category_service.exists_id(subcategory.category_id):
-			raise HTTPException(status.HTTP_404_NOT_FOUND,'Category not found')
-
-		if await self.service.exists_name(subcategory.name):
-			raise HTTPException(status.HTTP_409_CONFLICT, 'Subcategory already exists')
-
-		new_subcategory = await self.service.create(SubcategorySchema(**subcategory.model_dump()))
-		return SubcategorySchema(**new_subcategory.model_dump())
+	async def create(self, subcategory: SubcategoryCreateSchema) -> SubcategorySchema:
+		return SubcategorySchema.from_entity(
+			await self.service.create(Subcategory(**subcategory.model_dump()))
+		)
 
 	async def get_all(self) -> SubcategoryListSchema:
 		subcategories = await self.service.get_all()
