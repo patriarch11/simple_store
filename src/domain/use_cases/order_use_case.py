@@ -1,7 +1,7 @@
 from fastapi             import  HTTPException, status
 
 from src.constants       import OrderStatus
-from src.domain.entities import BaseOrder, Order
+from src.domain.entities import Order
 from src.domain.services import OrderService, ProductService
 
 
@@ -10,7 +10,7 @@ class OrderUseCase:
 		self.order_service   = order_service
 		self.product_service = product_service
 
-	async def _get_reserved_order_by_id(self, order_id: int) -> BaseOrder:
+	async def _get_reserved_order_by_id(self, order_id: int) -> Order:
 		order = await self.order_service.get_by_id(order_id)
 		if not order:
 			raise HTTPException(status.HTTP_404_NOT_FOUND, 'Order not found')
@@ -25,13 +25,16 @@ class OrderUseCase:
 		product = await self.product_service.get_by_id(product_id)
 		await self.product_service.update_reserved_count(product, quantity)
 
-		order = await self.order_service.create(BaseOrder(
+		order = await self.order_service.create(Order(
 			user_id       = user_id,
 			product_id    = product.id,
 			quantity      = quantity,
 			status        = OrderStatus.RESERVED
 		))
-		return Order.from_base_and_product(order, product.price, product.discount_pct)
+		order.amount = self.order_service.calculate_amount(
+			product.price, product.discount_pct, quantity
+		)
+		return order
 
 	async def cancel(self, order_id: int) -> Order:
 		order   = await self._get_reserved_order_by_id(order_id)
@@ -39,8 +42,9 @@ class OrderUseCase:
 
 		_ = await self.product_service.update_reserved_count(product, -order.quantity)
 
-		order = await self.order_service.update_status(order.id, OrderStatus.CANCELLED)
-		return Order.from_base_and_product(order, product.price, product.discount_pct)
+		return await self.order_service.update_status(
+			order.id, OrderStatus.CANCELLED, product.price, product.discount_pct, order.quantity
+		)
 
 	async def sell(self, order_id: int) -> Order:
 		order   = await self._get_reserved_order_by_id(order_id)
@@ -49,5 +53,6 @@ class OrderUseCase:
 		product = await self.product_service.update_reserved_count(product, -order.quantity)
 		_ = await self.product_service.update_total_count(product, -order.quantity)
 
-		order = await self.order_service.update_status(order.id, OrderStatus.COMPLETED)
-		return Order.from_base_and_product(order, product.price, product.discount_pct)
+		return await self.order_service.update_status(
+			order.id, OrderStatus.COMPLETED, product.price, product.discount_pct, order.quantity
+		)

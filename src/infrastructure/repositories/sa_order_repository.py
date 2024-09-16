@@ -14,7 +14,7 @@ from sqlalchemy                 import (
 )
 
 from src.constants                import OrderStatus
-from src.domain.entities          import BaseOrder, OrderList
+from src.domain.entities          import Order, OrderList
 from src.domain.repositories      import OrderRepository
 from src.infrastructure.database  import Base
 from src.library                  import Repository, Table
@@ -23,18 +23,26 @@ from src.library                  import Repository, Table
 class OrderTable(Base, Table):
 	__tablename__ = 'orders'
 
+	"""
+		amount can be fixed only when order is canceled or completed.
+		in other cases amount will be dynamically calculated from product price, quantity
+		and discount. this is necessary so as not to update the price on each
+		uncompleted order when the price of the product is updated
+	"""
+
 	id         = Column(Integer, primary_key=True)
 	user_id    = Column(Integer, nullable=False)
 	product_id = Column(Integer, ForeignKey('products.id'), nullable=False)
 	quantity   = Column(Integer, nullable=False)
+	amount     = Column(Float,   nullable=True)
 	status     = Column(Enum(OrderStatus), nullable=False)
 
 
 class SaOrderRepository(
-	Repository[BaseOrder, OrderList, OrderTable],
+	Repository[Order, OrderList, OrderTable],
 	OrderRepository
 ):
-	entity      = BaseOrder
+	entity      = Order
 	entity_list = OrderList
 	table       = OrderTable
 

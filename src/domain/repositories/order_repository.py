@@ -1,11 +1,11 @@
 from abc                 import abstractmethod
 from typing              import Optional
 
-from src.domain.entities import BaseOrder, OrderList
+from src.domain.entities import Order, OrderList
 from src.library         import RepositoryABC
 
 
-class OrderRepository(RepositoryABC[BaseOrder, OrderList]):
+class OrderRepository(RepositoryABC[Order, OrderList]):
 	@abstractmethod
 	async def get_list(self,
 		user_ids    : list[int],
